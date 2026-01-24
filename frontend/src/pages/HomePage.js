@@ -586,12 +586,53 @@ const HomePage = () => {
                 <h2 data-testid="results-header" className="tactical-heading text-xl">
                   {ranges.length > 0 ? `${ranges.length} Ranges Found` : 'No Ranges Found'}
                 </h2>
-                {userLocation && (
-                  <Badge data-testid="location-badge" variant="outline" className="text-xs">
-                    <MapPin className="w-3 h-3 mr-1" />
-                    Using your location
-                  </Badge>
-                )}
+                <div className="flex items-center gap-2">
+                  {userLocation && (
+                    <Badge data-testid="location-badge" variant="outline" className="text-xs">
+                      <MapPin className="w-3 h-3 mr-1" />
+                      Using your location
+                    </Badge>
+                  )}
+                  
+                  {/* View Toggle */}
+                  <div className="flex border rounded-lg overflow-hidden">
+                    <button
+                      data-testid="list-view-btn"
+                      onClick={() => setViewMode("list")}
+                      className={`px-3 py-1.5 flex items-center gap-1 text-sm ${
+                        viewMode === "list" 
+                          ? "bg-orange-500 text-white" 
+                          : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600"
+                      }`}
+                    >
+                      <List className="w-4 h-4" />
+                      List
+                    </button>
+                    <button
+                      data-testid="map-view-btn"
+                      onClick={() => setViewMode("map")}
+                      className={`px-3 py-1.5 flex items-center gap-1 text-sm ${
+                        viewMode === "map" 
+                          ? "bg-orange-500 text-white" 
+                          : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600"
+                      }`}
+                    >
+                      <Map className="w-4 h-4" />
+                      Map
+                    </button>
+                  </div>
+                  
+                  {/* Submit Range Button */}
+                  <Button
+                    data-testid="submit-range-btn"
+                    onClick={() => navigate("/submit")}
+                    variant="outline"
+                    className="hidden sm:flex items-center gap-1"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add Range
+                  </Button>
+                </div>
               </div>
               
               {loading ? (
@@ -600,6 +641,14 @@ const HomePage = () => {
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-orange-500"></div>
                     Searching ranges...
                   </div>
+                </div>
+              ) : viewMode === "map" ? (
+                <div data-testid="map-view-container">
+                  <RangeMap 
+                    ranges={ranges} 
+                    onRangeClick={(range) => navigate(`/range/${range.id}`)}
+                    height="500px"
+                  />
                 </div>
               ) : (
                 <div data-testid="results-container" className="results-scroll space-y-4">
