@@ -4,6 +4,7 @@ import { Toaster } from "./components/ui/sonner";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import HomePage from "./pages/HomePage";
 import RangeDetailPage from "./pages/RangeDetailPage";
+import SubmitRangePage from "./pages/SubmitRangePage";
 import "./App.css";
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/range/:id" element={<RangeDetailPage />} />
+            <Route path="/submit" element={<SubmitRangePage />} />
           </Routes>
           <Toaster position="top-right" />
         </BrowserRouter>
