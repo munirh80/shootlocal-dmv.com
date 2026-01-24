@@ -321,9 +321,21 @@ const AdminDashboard = () => {
                 Back to Directory
               </button>
             </div>
-            <div className="flex items-center gap-2">
-              <Shield className="w-5 h-5 text-orange-500" />
-              <span className="font-semibold">Admin Dashboard</span>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Shield className="w-5 h-5 text-orange-500" />
+                <span className="font-semibold">Admin Dashboard</span>
+              </div>
+              <Button
+                data-testid="logout-btn"
+                variant="outline"
+                size="sm"
+                onClick={handleLogout}
+                className="text-slate-300 border-slate-600 hover:bg-slate-700"
+              >
+                <LogOut className="w-4 h-4 mr-1" />
+                Logout
+              </Button>
             </div>
           </div>
         </div>
