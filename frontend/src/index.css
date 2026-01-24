@@ -158,7 +158,7 @@ code {
 @layer components {
   /* Tactical UI Styles */
   .tactical-card {
-      @apply border-2 border-slate-200 bg-white shadow-sm;
+      @apply border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm;
   }
 
   .tactical-button {
@@ -166,15 +166,15 @@ code {
   }
 
   .tactical-input {
-      @apply border-2 border-slate-300 bg-slate-50 focus:border-orange-500 focus:ring-0 focus:ring-offset-0;
+      @apply border-2 border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 focus:border-orange-500 focus:ring-0 focus:ring-offset-0 text-slate-900 dark:text-slate-100;
   }
 
   .tactical-badge {
-      @apply bg-slate-900 text-white text-xs font-bold px-2 py-1 uppercase tracking-wider;
+      @apply bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 text-xs font-bold px-2 py-1 uppercase tracking-wider;
   }
 
   .range-card {
-    @apply border-2 border-slate-200 bg-white shadow-sm hover:border-orange-500 transition-all duration-200;
+    @apply border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm hover:border-orange-500 transition-all duration-200;
   }
 
   .range-card:hover {
@@ -183,11 +183,11 @@ code {
   }
 
   .filter-panel {
-    @apply bg-white border-r-2 border-slate-200 shadow-sm;
+    @apply bg-white dark:bg-slate-800 border-r-2 border-slate-200 dark:border-slate-700 shadow-sm;
   }
 
   .map-container {
-    @apply bg-slate-100 border-2 border-slate-200;
+    @apply bg-slate-100 dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600;
   }
 
   /* Interactive elements */
@@ -210,10 +210,10 @@ code {
 
   /* Tactical form elements */
   .tactical-checkbox {
-    @apply border-2 border-slate-300 rounded-none focus:ring-orange-500;
+    @apply border-2 border-slate-300 dark:border-slate-600 rounded-none focus:ring-orange-500;
   }
 
   .tactical-radio {
-    @apply border-2 border-slate-300 focus:ring-orange-500;
+    @apply border-2 border-slate-300 dark:border-slate-600 focus:ring-orange-500;
   }
 }
