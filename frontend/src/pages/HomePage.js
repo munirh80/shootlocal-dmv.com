@@ -436,7 +436,7 @@ const HomePage = () => {
       {/* Header with Video */}
       <header className="relative text-white overflow-hidden" style={{ minHeight: '400px' }}>
         {/* YouTube Video Background */}
-        <div className="absolute inset-0 w-full h-full">
+        <div className="absolute inset-0 w-full h-full z-0">
           <iframe
             src="https://www.youtube.com/embed/JnempufjTdw?autoplay=1&mute=1&loop=1&playlist=JnempufjTdw&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1"
             title="Shooting Range Video"
@@ -445,7 +445,8 @@ const HomePage = () => {
               width: '100%', 
               height: '100%',
               minHeight: '400px',
-              objectFit: 'cover'
+              minWidth: '100%',
+              border: 'none'
             }}
             allow="autoplay; encrypted-media"
             allowFullScreen
