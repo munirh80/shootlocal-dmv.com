@@ -80,6 +80,56 @@ const SubmitRangePage = () => {
     }));
   };
 
+  const handlePhotoUpload = async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+    
+    setUploadingPhoto(true);
+    
+    for (const file of files) {
+      if (file.size > 5 * 1024 * 1024) {
+        setSubmitError('File too large. Max size: 5MB');
+        continue;
+      }
+      
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      try {
+        const response = await fetch(`${API_URL}/api/upload/photo`, {
+          method: 'POST',
+          body: formData
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          const photoUrl = `${API_URL}${data.url}`;
+          setPhotos(prev => [...prev, photoUrl]);
+          setFormData(prev => ({
+            ...prev,
+            photos: [...prev.photos, photoUrl]
+          }));
+        } else {
+          throw new Error('Upload failed');
+        }
+      } catch (error) {
+        console.error('Photo upload error:', error);
+        setSubmitError('Failed to upload photo');
+      }
+    }
+    
+    setUploadingPhoto(false);
+    e.target.value = ''; // Reset input
+  };
+
+  const removePhoto = (index) => {
+    setPhotos(prev => prev.filter((_, i) => i !== index));
+    setFormData(prev => ({
+      ...prev,
+      photos: prev.photos.filter((_, i) => i !== index)
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
