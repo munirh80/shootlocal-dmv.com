@@ -16,6 +16,7 @@ import secrets
 import aiofiles
 import asyncio
 import resend
+import httpx
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 
