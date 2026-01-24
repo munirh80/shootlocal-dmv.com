@@ -464,9 +464,10 @@ const HomePage = () => {
         {/* Content overlay */}
         <div className="relative z-20 container mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center">
-            {/* Theme Toggle - Top Right */}
-            <div className="absolute top-4 right-4">
+            {/* Theme Toggle & User Menu - Top Right */}
+            <div className="absolute top-4 right-4 flex items-center gap-3">
               <ThemeToggle />
+              <UserMenu />
             </div>
             
             <h1 data-testid="main-heading" className="text-4xl md:text-6xl font-black tactical-heading mb-4">
