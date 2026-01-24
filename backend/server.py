@@ -550,7 +550,194 @@ async def submit_range(submission: RangeSubmission):
     # Insert into submissions collection for review
     await db.range_submissions.insert_one(range_doc)
     
+    # Send email notification to admin
+    email_html = f"""
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #f97316;">New Range Submission</h2>
+        <p>A new shooting range has been submitted for review:</p>
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Name:</strong></td>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;">{submission.name}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Location:</strong></td>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;">{submission.city}, {submission.state}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Address:</strong></td>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;">{submission.address}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Phone:</strong></td>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;">{submission.phone or 'Not provided'}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Website:</strong></td>
+                <td style="padding: 8px; border-bottom: 1px solid #eee;">{submission.website or 'Not provided'}</td>
+            </tr>
+        </table>
+        <p style="margin-top: 20px;">
+            <a href="https://dmvgunrange.com/admin" style="background-color: #f97316; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+                Review Submission
+            </a>
+        </p>
+        <p style="color: #666; font-size: 12px; margin-top: 30px;">
+            This is an automated notification from DMV Gun Range.
+        </p>
+    </div>
+    """
+    
+    await send_notification_email(
+        subject=f"New Range Submission: {submission.name}",
+        html_content=email_html
+    )
+    
     return {"message": "Range submitted successfully. It will be reviewed by our team.", "id": range_doc["id"]}
+
+# ==================== USER AUTHENTICATION ====================
+
+class UserRegister(BaseModel):
+    email: EmailStr
+    password: str
+    name: str
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+class UserResponse(BaseModel):
+    id: str
+    email: str
+    name: str
+    created_at: str
+
+@api_router.post("/auth/register")
+async def register_user(user: UserRegister):
+    """Register a new user"""
+    # Check if email already exists
+    existing = await db.users.find_one({"email": user.email.lower()})
+    if existing:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    
+    # Validate password
+    if len(user.password) < 6:
+        raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+    
+    # Create user
+    user_doc = {
+        "id": str(uuid.uuid4()),
+        "email": user.email.lower(),
+        "password_hash": hash_password(user.password),
+        "name": user.name,
+        "favorites": [],
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.users.insert_one(user_doc)
+    
+    # Generate token
+    token = create_user_token(user_doc["id"], user_doc["email"])
+    
+    return {
+        "success": True,
+        "token": token,
+        "user": {
+            "id": user_doc["id"],
+            "email": user_doc["email"],
+            "name": user_doc["name"]
+        }
+    }
+
+@api_router.post("/auth/login")
+async def login_user(credentials: UserLogin):
+    """Login user"""
+    user = await db.users.find_one({"email": credentials.email.lower()}, {"_id": 0})
+    
+    if not user or not verify_password(credentials.password, user["password_hash"]):
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+    
+    token = create_user_token(user["id"], user["email"])
+    
+    return {
+        "success": True,
+        "token": token,
+        "user": {
+            "id": user["id"],
+            "email": user["email"],
+            "name": user["name"]
+        }
+    }
+
+@api_router.get("/auth/me")
+async def get_current_user(user_data: dict = Depends(verify_user_token)):
+    """Get current user info"""
+    user = await db.users.find_one({"id": user_data["user_id"]}, {"_id": 0, "password_hash": 0})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+# ==================== FAVORITES ====================
+
+@api_router.post("/favorites/{range_id}")
+async def add_favorite(range_id: str, user_data: dict = Depends(verify_user_token)):
+    """Add a range to favorites"""
+    # Verify range exists
+    range_doc = await db.ranges.find_one({"id": range_id})
+    if not range_doc:
+        raise HTTPException(status_code=404, detail="Range not found")
+    
+    # Add to favorites
+    await db.users.update_one(
+        {"id": user_data["user_id"]},
+        {"$addToSet": {"favorites": range_id}}
+    )
+    
+    return {"success": True, "message": "Range added to favorites"}
+
+@api_router.delete("/favorites/{range_id}")
+async def remove_favorite(range_id: str, user_data: dict = Depends(verify_user_token)):
+    """Remove a range from favorites"""
+    await db.users.update_one(
+        {"id": user_data["user_id"]},
+        {"$pull": {"favorites": range_id}}
+    )
+    
+    return {"success": True, "message": "Range removed from favorites"}
+
+@api_router.get("/favorites")
+async def get_favorites(user_data: dict = Depends(verify_user_token)):
+    """Get user's favorite ranges"""
+    user = await db.users.find_one({"id": user_data["user_id"]}, {"_id": 0})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    favorite_ids = user.get("favorites", [])
+    
+    if not favorite_ids:
+        return []
+    
+    # Get the actual range data
+    ranges = await db.ranges.find(
+        {"id": {"$in": favorite_ids}},
+        {"_id": 0}
+    ).to_list(length=100)
+    
+    return ranges
+
+@api_router.get("/favorites/check/{range_id}")
+async def check_favorite(range_id: str, user_data: dict = Depends(optional_user_token)):
+    """Check if a range is in user's favorites"""
+    if not user_data:
+        return {"is_favorite": False}
+    
+    user = await db.users.find_one({"id": user_data["user_id"]}, {"favorites": 1})
+    if not user:
+        return {"is_favorite": False}
+    
+    is_favorite = range_id in user.get("favorites", [])
+    return {"is_favorite": is_favorite}
 
 # Admin Login Model
 class AdminLoginRequest(BaseModel):
