@@ -500,6 +500,22 @@ const AdminDashboard = () => {
           </Card>
         </div>
 
+        {/* Bulk Import Section */}
+        <div className="mb-6">
+          <Button
+            variant="outline"
+            onClick={() => setShowBulkImport(!showBulkImport)}
+            className="mb-4"
+          >
+            <FileSpreadsheet className="w-4 h-4 mr-2" />
+            {showBulkImport ? 'Hide Bulk Import' : 'Bulk Import Ranges'}
+          </Button>
+          
+          {showBulkImport && (
+            <BulkImport onImportComplete={loadStats} />
+          )}
+        </div>
+
         {/* Submissions Section */}
         <div className="flex justify-between items-center mb-6">
           <h1 data-testid="admin-title" className="text-2xl font-bold dark:text-white">
