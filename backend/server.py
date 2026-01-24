@@ -534,6 +534,51 @@ async def reject_submission(submission_id: str, token: str = Depends(verify_toke
     
     return {"message": "Submission rejected", "id": submission_id}
 
+# Photo Upload Endpoint
+@api_router.post("/upload/photo")
+async def upload_photo(file: UploadFile = File(...)):
+    """Upload a photo for a range"""
+    # Validate file type
+    allowed_types = ["image/jpeg", "image/png", "image/webp", "image/gif"]
+    if file.content_type not in allowed_types:
+        raise HTTPException(status_code=400, detail="Invalid file type. Allowed: JPEG, PNG, WebP, GIF")
+    
+    # Generate unique filename
+    file_ext = file.filename.split(".")[-1] if "." in file.filename else "jpg"
+    unique_filename = f"{uuid.uuid4()}.{file_ext}"
+    file_path = UPLOADS_DIR / unique_filename
+    
+    # Save file
+    try:
+        async with aiofiles.open(file_path, 'wb') as f:
+            content = await file.read()
+            # Limit file size to 5MB
+            if len(content) > 5 * 1024 * 1024:
+                raise HTTPException(status_code=400, detail="File too large. Max size: 5MB")
+            await f.write(content)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save file: {str(e)}")
+    
+    # Return the URL path
+    return {
+        "success": True,
+        "filename": unique_filename,
+        "url": f"/uploads/{unique_filename}"
+    }
+
+@api_router.post("/ranges/{range_id}/photos")
+async def add_photo_to_range(range_id: str, photo_url: str = Query(...)):
+    """Add a photo URL to a range"""
+    result = await db.ranges.update_one(
+        {"id": range_id},
+        {"$push": {"photos": photo_url}}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Range not found")
+    
+    return {"success": True, "message": "Photo added to range"}
+
 @api_router.get("/stats")
 async def get_stats():
     """Get basic statistics about ranges in the database"""
