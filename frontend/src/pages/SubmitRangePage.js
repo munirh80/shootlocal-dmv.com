@@ -491,12 +491,67 @@ const SubmitRangePage = () => {
             />
           </section>
 
+          {/* Photos */}
+          <section className="bg-slate-800 rounded-lg p-6">
+            <h2 className="text-xl font-semibold mb-4 flex items-center">
+              <Camera className="w-5 h-5 mr-2 text-orange-500" />
+              Photos
+            </h2>
+            <p className="text-slate-400 text-sm mb-4">
+              Upload photos of your range (max 5MB per image, JPEG/PNG/WebP)
+            </p>
+            
+            {/* Photo Grid */}
+            {photos.length > 0 && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                {photos.map((photo, index) => (
+                  <div key={index} className="relative group">
+                    <img
+                      src={photo}
+                      alt={`Range photo ${index + 1}`}
+                      className="w-full h-32 object-cover rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removePhoto(index)}
+                      className="absolute top-2 right-2 p-1 bg-red-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="w-4 h-4 text-white" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            
+            {/* Upload Button */}
+            <label className="flex items-center justify-center w-full h-32 border-2 border-dashed border-slate-600 rounded-lg cursor-pointer hover:border-orange-500 transition-colors">
+              <div className="text-center">
+                {uploadingPhoto ? (
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mx-auto"></div>
+                ) : (
+                  <>
+                    <Upload className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+                    <span className="text-slate-400">Click to upload photos</span>
+                  </>
+                )}
+              </div>
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                multiple
+                onChange={handlePhotoUpload}
+                className="hidden"
+                disabled={uploadingPhoto}
+              />
+            </label>
+          </section>
+
           {/* Submit */}
           <div className="flex justify-end">
             <Button
               data-testid="submit-range-btn"
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || uploadingPhoto}
               className="bg-orange-500 hover:bg-orange-600 px-8"
             >
               {isSubmitting ? (
