@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import MarkerClusterGroup from 'react-leaflet-cluster';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -20,6 +21,41 @@ const rangeIcon = new L.Icon({
   popupAnchor: [1, -34],
   shadowSize: [41, 41]
 });
+
+// Custom cluster icon
+const createClusterCustomIcon = (cluster) => {
+  const count = cluster.getChildCount();
+  let size = 'small';
+  if (count >= 10) size = 'medium';
+  if (count >= 25) size = 'large';
+  
+  const sizeMap = {
+    small: { width: 30, height: 30, fontSize: '12px' },
+    medium: { width: 40, height: 40, fontSize: '14px' },
+    large: { width: 50, height: 50, fontSize: '16px' }
+  };
+  
+  const s = sizeMap[size];
+  
+  return L.divIcon({
+    html: `<div style="
+      background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+      color: white;
+      width: ${s.width}px;
+      height: ${s.height}px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: ${s.fontSize};
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      border: 2px solid white;
+    ">${count}</div>`,
+    className: 'custom-cluster-icon',
+    iconSize: L.point(s.width, s.height, true),
+  });
+};
 
 // Component to fit map bounds to all markers
 function FitBounds({ ranges }) {
@@ -93,46 +129,55 @@ export const RangeMap = ({ ranges, onRangeClick, selectedRange, height = "400px"
         
         <FitBounds ranges={validRanges} />
         
-        {validRanges.map((range) => (
-          <Marker
-            key={range.id}
-            position={[range.location.latitude, range.location.longitude]}
-            icon={rangeIcon}
-            eventHandlers={{
-              click: () => onRangeClick && onRangeClick(range)
-            }}
-          >
-            <Popup>
-              <div className="p-2 min-w-[200px]">
-                <h3 className="font-bold text-lg mb-1">{range.name}</h3>
-                <p className="text-sm text-gray-600 mb-2">
-                  {range.location.city}, {range.location.state}
-                </p>
-                <div className="flex gap-2 mb-2">
-                  {range.amenities?.indoor && (
-                    <span className="px-2 py-0.5 bg-blue-100 text-blue-800 text-xs rounded">Indoor</span>
-                  )}
-                  {range.amenities?.outdoor && (
-                    <span className="px-2 py-0.5 bg-green-100 text-green-800 text-xs rounded">Outdoor</span>
-                  )}
-                </div>
-                {range.phone && (
-                  <p className="text-sm">
-                    <a href={`tel:${range.phone}`} className="text-blue-600 hover:underline">
-                      {range.phone}
-                    </a>
+        <MarkerClusterGroup
+          chunkedLoading
+          iconCreateFunction={createClusterCustomIcon}
+          maxClusterRadius={60}
+          spiderfyOnMaxZoom={true}
+          showCoverageOnHover={false}
+          zoomToBoundsOnClick={true}
+        >
+          {validRanges.map((range) => (
+            <Marker
+              key={range.id}
+              position={[range.location.latitude, range.location.longitude]}
+              icon={rangeIcon}
+              eventHandlers={{
+                click: () => onRangeClick && onRangeClick(range)
+              }}
+            >
+              <Popup>
+                <div className="p-2 min-w-[200px]">
+                  <h3 className="font-bold text-lg mb-1">{range.name}</h3>
+                  <p className="text-sm text-gray-600 mb-2">
+                    {range.location.city}, {range.location.state}
                   </p>
-                )}
-                <button
-                  onClick={() => onRangeClick && onRangeClick(range)}
-                  className="mt-2 w-full px-3 py-1 bg-orange-500 text-white text-sm rounded hover:bg-orange-600 transition-colors"
-                >
-                  View Details
-                </button>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
+                  <div className="flex gap-2 mb-2">
+                    {range.amenities?.indoor && (
+                      <span className="px-2 py-0.5 bg-blue-100 text-blue-800 text-xs rounded">Indoor</span>
+                    )}
+                    {range.amenities?.outdoor && (
+                      <span className="px-2 py-0.5 bg-green-100 text-green-800 text-xs rounded">Outdoor</span>
+                    )}
+                  </div>
+                  {range.phone && (
+                    <p className="text-sm">
+                      <a href={`tel:${range.phone}`} className="text-blue-600 hover:underline">
+                        {range.phone}
+                      </a>
+                    </p>
+                  )}
+                  <button
+                    onClick={() => onRangeClick && onRangeClick(range)}
+                    className="mt-2 w-full px-3 py-1 bg-orange-500 text-white text-sm rounded hover:bg-orange-600 transition-colors"
+                  >
+                    View Details
+                  </button>
+                </div>
+              </Popup>
+            </Marker>
+          ))}
+        </MarkerClusterGroup>
       </MapContainer>
       
       {validRanges.length === 0 && (
@@ -145,7 +190,7 @@ export const RangeMap = ({ ranges, onRangeClick, selectedRange, height = "400px"
       )}
       
       <div className="bg-slate-800 px-4 py-2 text-sm text-slate-400">
-        Showing {validRanges.length} of {ranges?.length || 0} ranges on map
+        Showing {validRanges.length} of {ranges?.length || 0} ranges on map (clustered)
       </div>
     </div>
   );
