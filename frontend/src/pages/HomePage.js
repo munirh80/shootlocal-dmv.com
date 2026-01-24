@@ -440,7 +440,7 @@ const HomePage = () => {
             {stats && (
               <div className="flex justify-center gap-8 text-sm">
                 <div data-testid="total-ranges-stat" className="text-center">
-                  <div className="text-2xl font-bold safety-orange">{stats.total_ranges}</div>
+                  <div className="text-2xl font-bold text-orange-500">{stats.total_ranges}</div>
                   <div className="text-slate-300">Total Ranges</div>
                 </div>
                 <div data-testid="va-ranges-stat" className="text-center">
