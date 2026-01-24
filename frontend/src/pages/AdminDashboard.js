@@ -7,17 +7,19 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { 
   ArrowLeft, Check, X, Eye, MapPin, Phone, Globe, Clock, 
-  RefreshCw, Shield, AlertCircle, LogOut, Settings, Lock 
+  RefreshCw, Shield, AlertCircle, LogOut, Settings, Lock, FileSpreadsheet 
 } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
 import { adminSession } from './AdminLogin';
+import BulkImport from '../components/BulkImport';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [submissions, setSubmissions] = useState([]);
+  const [showBulkImport, setShowBulkImport] = useState(false);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState(null);
   const [selectedSubmission, setSelectedSubmission] = useState(null);
