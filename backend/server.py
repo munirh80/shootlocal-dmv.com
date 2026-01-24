@@ -859,6 +859,69 @@ async def get_stats():
         "nssf_members": nssf_members
     }
 
+# ==================== SEO ====================
+
+from fastapi.responses import Response
+
+@api_router.get("/sitemap.xml")
+async def get_sitemap():
+    """Generate XML sitemap for SEO"""
+    base_url = os.environ.get('SITE_URL', 'https://dmvgunrange.com')
+    
+    # Get all ranges
+    ranges = await db.ranges.find({}, {"id": 1, "updated_at": 1}).to_list(length=1000)
+    
+    # Build sitemap XML
+    urls = []
+    
+    # Static pages
+    urls.append(f'''
+    <url>
+        <loc>{base_url}/</loc>
+        <changefreq>daily</changefreq>
+        <priority>1.0</priority>
+    </url>''')
+    
+    urls.append(f'''
+    <url>
+        <loc>{base_url}/submit</loc>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>''')
+    
+    # Range pages
+    for range_doc in ranges:
+        lastmod = range_doc.get('updated_at', datetime.now(timezone.utc).isoformat())
+        if isinstance(lastmod, str):
+            lastmod = lastmod[:10]  # Get just the date part
+        urls.append(f'''
+    <url>
+        <loc>{base_url}/range/{range_doc['id']}</loc>
+        <lastmod>{lastmod}</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.8</priority>
+    </url>''')
+    
+    sitemap = f'''<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{"".join(urls)}
+</urlset>'''
+    
+    return Response(content=sitemap, media_type="application/xml")
+
+@api_router.get("/robots.txt")
+async def get_robots():
+    """Generate robots.txt for SEO"""
+    base_url = os.environ.get('SITE_URL', 'https://dmvgunrange.com')
+    
+    robots = f"""User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/
+
+Sitemap: {base_url}/api/sitemap.xml
+"""
+    return Response(content=robots, media_type="text/plain")
+
 # Include the router in the main app
 app.include_router(api_router)
 
