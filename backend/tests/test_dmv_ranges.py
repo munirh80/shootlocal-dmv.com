@@ -309,5 +309,164 @@ class TestMapCoordinates:
             f"Only {ranges_with_coords}/{len(data)} ranges have coordinates"
 
 
+class TestAdminDashboard:
+    """Tests for Admin Dashboard endpoints - /api/admin/submissions, approve, reject"""
+    
+    @pytest.fixture(autouse=True)
+    def setup_test_submission(self):
+        """Create a test submission before each test and cleanup after"""
+        # Create a test submission
+        submission_data = {
+            "name": "TEST_Admin_Review_Range",
+            "phone": "+1 555-999-8888",
+            "website": "https://test-admin-range.com",
+            "email": "admin@test.com",
+            "address": "999 Admin Test Blvd",
+            "city": "Fairfax",
+            "state": "VA",
+            "zip_code": "22030",
+            "description": "Test range for admin dashboard testing",
+            "hours": {"monday": "9AM-5PM", "tuesday": "9AM-5PM"},
+            "amenities": {"indoor": True, "handgun": True, "rifle": True}
+        }
+        
+        response = requests.post(f"{BASE_URL}/api/ranges/submit", json=submission_data)
+        assert response.status_code == 200
+        self.test_submission_id = response.json()["id"]
+        
+        yield
+        
+        # Cleanup: Try to reject the submission if it still exists
+        requests.post(f"{BASE_URL}/api/admin/submissions/{self.test_submission_id}/reject")
+    
+    def test_get_pending_submissions(self):
+        """Test GET /api/admin/submissions returns pending submissions"""
+        response = requests.get(f"{BASE_URL}/api/admin/submissions")
+        assert response.status_code == 200
+        
+        data = response.json()
+        assert isinstance(data, list)
+        
+        # Find our test submission
+        test_submission = next((s for s in data if s["id"] == self.test_submission_id), None)
+        assert test_submission is not None, "Test submission not found in pending list"
+        assert test_submission["name"] == "TEST_Admin_Review_Range"
+        assert test_submission["pending_review"] == True
+    
+    def test_submission_has_required_fields(self):
+        """Test pending submission has all required fields for review"""
+        response = requests.get(f"{BASE_URL}/api/admin/submissions")
+        assert response.status_code == 200
+        
+        data = response.json()
+        test_submission = next((s for s in data if s["id"] == self.test_submission_id), None)
+        assert test_submission is not None
+        
+        # Verify required fields for admin review
+        assert "id" in test_submission
+        assert "name" in test_submission
+        assert "location" in test_submission
+        assert "phone" in test_submission
+        assert "website" in test_submission
+        assert "email" in test_submission
+        assert "amenities" in test_submission
+        assert "pending_review" in test_submission
+        
+        # Verify location details
+        location = test_submission["location"]
+        assert location["city"] == "Fairfax"
+        assert location["state"] == "VA"
+        assert location["zip_code"] == "22030"
+    
+    def test_reject_submission(self):
+        """Test POST /api/admin/submissions/{id}/reject removes submission"""
+        # First verify submission exists
+        response = requests.get(f"{BASE_URL}/api/admin/submissions")
+        data = response.json()
+        test_submission = next((s for s in data if s["id"] == self.test_submission_id), None)
+        assert test_submission is not None, "Test submission should exist before rejection"
+        
+        # Reject the submission
+        reject_response = requests.post(f"{BASE_URL}/api/admin/submissions/{self.test_submission_id}/reject")
+        assert reject_response.status_code == 200
+        
+        reject_data = reject_response.json()
+        assert "message" in reject_data
+        assert "rejected" in reject_data["message"].lower()
+        
+        # Verify submission is removed from pending list
+        verify_response = requests.get(f"{BASE_URL}/api/admin/submissions")
+        verify_data = verify_response.json()
+        test_submission = next((s for s in verify_data if s["id"] == self.test_submission_id), None)
+        assert test_submission is None, "Rejected submission should not be in pending list"
+    
+    def test_reject_nonexistent_submission_returns_404(self):
+        """Test rejecting non-existent submission returns 404"""
+        response = requests.post(f"{BASE_URL}/api/admin/submissions/nonexistent-id-12345/reject")
+        assert response.status_code == 404
+
+
+class TestAdminApproveFlow:
+    """Tests for Admin Approve flow - separate class to avoid fixture conflicts"""
+    
+    def test_approve_submission_adds_to_directory(self):
+        """Test POST /api/admin/submissions/{id}/approve adds range to directory"""
+        # Create a unique test submission for approval
+        submission_data = {
+            "name": "TEST_Approve_Flow_Range",
+            "phone": "+1 555-777-6666",
+            "website": "https://test-approve-range.com",
+            "email": "approve@test.com",
+            "address": "777 Approve Test Lane",
+            "city": "Alexandria",
+            "state": "VA",
+            "zip_code": "22301",
+            "description": "Test range for approval flow testing",
+            "amenities": {"indoor": True, "handgun": True}
+        }
+        
+        submit_response = requests.post(f"{BASE_URL}/api/ranges/submit", json=submission_data)
+        assert submit_response.status_code == 200
+        submission_id = submit_response.json()["id"]
+        
+        # Get initial range count
+        initial_stats = requests.get(f"{BASE_URL}/api/stats").json()
+        initial_count = initial_stats["total_ranges"]
+        
+        # Approve the submission
+        approve_response = requests.post(f"{BASE_URL}/api/admin/submissions/{submission_id}/approve")
+        assert approve_response.status_code == 200
+        
+        approve_data = approve_response.json()
+        assert "message" in approve_data
+        assert "approved" in approve_data["message"].lower()
+        
+        # Verify submission is removed from pending list
+        pending_response = requests.get(f"{BASE_URL}/api/admin/submissions")
+        pending_data = pending_response.json()
+        test_submission = next((s for s in pending_data if s["id"] == submission_id), None)
+        assert test_submission is None, "Approved submission should not be in pending list"
+        
+        # Verify range is added to main directory
+        new_stats = requests.get(f"{BASE_URL}/api/stats").json()
+        assert new_stats["total_ranges"] == initial_count + 1, "Total ranges should increase by 1"
+        
+        # Verify the range can be retrieved from main directory
+        range_response = requests.get(f"{BASE_URL}/api/ranges/{submission_id}")
+        assert range_response.status_code == 200
+        
+        range_data = range_response.json()
+        assert range_data["name"] == "TEST_Approve_Flow_Range"
+        assert range_data["verified"] == True, "Approved range should be marked as verified"
+        
+        # Cleanup: Delete the approved range from main collection
+        # Note: No delete endpoint exists, so we leave it for manual cleanup
+    
+    def test_approve_nonexistent_submission_returns_404(self):
+        """Test approving non-existent submission returns 404"""
+        response = requests.post(f"{BASE_URL}/api/admin/submissions/nonexistent-id-12345/approve")
+        assert response.status_code == 404
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
