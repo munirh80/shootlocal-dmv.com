@@ -6,14 +6,18 @@ from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 from pathlib import Path
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, EmailStr
 from typing import List, Optional, Dict, Any
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import math
 import hashlib
 import secrets
 import aiofiles
+import asyncio
+import resend
+from passlib.context import CryptContext
+from jose import JWTError, jwt
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -28,8 +32,22 @@ client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
 # Admin authentication
-ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'dmvgunrange2024')  # Default password
-admin_tokens = set()  # In-memory token storage
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'dmvgunrange2024')
+admin_tokens = set()
+
+# User authentication
+JWT_SECRET = os.environ.get('JWT_SECRET', 'dmvgunrange_jwt_secret_2024')
+JWT_ALGORITHM = "HS256"
+JWT_EXPIRATION_HOURS = 24 * 7  # 1 week
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+# Email configuration
+resend.api_key = os.environ.get('RESEND_API_KEY')
+SENDER_EMAIL = os.environ.get('SENDER_EMAIL', 'onboarding@resend.dev')
+ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL')
+
+logger = logging.getLogger(__name__)
 
 def generate_token():
     return secrets.token_hex(32)
@@ -41,6 +59,70 @@ def verify_token(authorization: Optional[str] = Header(None)):
     if token not in admin_tokens:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
     return token
+
+def hash_password(password: str) -> str:
+    return pwd_context.hash(password)
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return pwd_context.verify(plain_password, hashed_password)
+
+def create_user_token(user_id: str, email: str) -> str:
+    expire = datetime.now(timezone.utc) + timedelta(hours=JWT_EXPIRATION_HOURS)
+    to_encode = {"sub": user_id, "email": email, "exp": expire}
+    return jwt.encode(to_encode, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+def verify_user_token(authorization: Optional[str] = Header(None)):
+    if not authorization or not authorization.startswith('Bearer '):
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    token = authorization.replace('Bearer ', '')
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        user_id = payload.get("sub")
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        return {"user_id": user_id, "email": payload.get("email")}
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+
+def optional_user_token(authorization: Optional[str] = Header(None)):
+    """Optional authentication - returns user info if valid token, None otherwise"""
+    if not authorization or not authorization.startswith('Bearer '):
+        return None
+    token = authorization.replace('Bearer ', '')
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        user_id = payload.get("sub")
+        if user_id:
+            return {"user_id": user_id, "email": payload.get("email")}
+    except JWTError:
+        pass
+    return None
+
+async def send_notification_email(subject: str, html_content: str, to_email: str = None):
+    """Send email notification using Resend"""
+    if not resend.api_key:
+        logger.warning("Resend API key not configured, skipping email")
+        return None
+    
+    recipient = to_email or ADMIN_EMAIL
+    if not recipient:
+        logger.warning("No recipient email configured")
+        return None
+    
+    params = {
+        "from": SENDER_EMAIL,
+        "to": [recipient],
+        "subject": subject,
+        "html": html_content
+    }
+    
+    try:
+        email = await asyncio.to_thread(resend.Emails.send, params)
+        logger.info(f"Email sent successfully to {recipient}")
+        return email
+    except Exception as e:
+        logger.error(f"Failed to send email: {str(e)}")
+        return None
 
 # Create the main app without a prefix
 app = FastAPI(title="DMV Gun Range API", version="1.0.0")
