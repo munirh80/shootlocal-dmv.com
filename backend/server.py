@@ -1,4 +1,5 @@
-from fastapi import FastAPI, APIRouter, Query, HTTPException, Header, Depends
+from fastapi import FastAPI, APIRouter, Query, HTTPException, Header, Depends, UploadFile, File
+from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -12,9 +13,14 @@ from datetime import datetime, timezone
 import math
 import hashlib
 import secrets
+import aiofiles
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
+
+# Create uploads directory
+UPLOADS_DIR = ROOT_DIR / "uploads"
+UPLOADS_DIR.mkdir(exist_ok=True)
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
@@ -38,6 +44,9 @@ def verify_token(authorization: Optional[str] = Header(None)):
 
 # Create the main app without a prefix
 app = FastAPI(title="DMV Gun Range API", version="1.0.0")
+
+# Mount static files for uploads
+app.mount("/uploads", StaticFiles(directory=str(UPLOADS_DIR)), name="uploads")
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
