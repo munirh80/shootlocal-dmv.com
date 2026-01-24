@@ -150,7 +150,7 @@ const HomePage = () => {
   };
 
   const clearFilters = () => {
-    setFilters({
+    const clearedFilters = {
       indoor: null,
       outdoor: null,
       nssf_member: null,
@@ -168,7 +168,11 @@ const HomePage = () => {
       rifle: null,
       shotgun: null,
       archery: null
-    });
+    };
+    setFilters(clearedFilters);
+    
+    // Trigger search with cleared filters
+    searchRanges(searchQuery, userLocation);
   };
 
   const getAmenityBadges = (amenities) => {
