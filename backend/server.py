@@ -474,6 +474,10 @@ async def submit_range(submission: RangeSubmission):
 class AdminLoginRequest(BaseModel):
     password: str
 
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+
 # Admin Endpoints
 @api_router.post("/admin/login")
 async def admin_login(request: AdminLoginRequest):
