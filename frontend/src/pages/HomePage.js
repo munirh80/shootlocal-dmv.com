@@ -414,7 +414,7 @@ const HomePage = () => {
           <Link 
             to={`/range/${range.id}`} 
             data-testid={`view-details-link-${range.id}`}
-            className="text-sm font-medium safety-orange hover:underline"
+            className="text-sm font-medium text-orange-500 hover:underline"
             onClick={(e) => e.stopPropagation()}
           >
             View Details →
