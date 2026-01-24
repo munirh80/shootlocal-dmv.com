@@ -466,7 +466,7 @@ const HomePage = () => {
             </div>
             
             <h1 data-testid="main-heading" className="text-4xl md:text-6xl font-black tactical-heading mb-4">
-              DMV GUN RANGES
+              DMV GUN RANGE
             </h1>
             <p data-testid="main-subtitle" className="text-lg md:text-xl mb-8 text-slate-200">
               Find Shooting Ranges in DC, Maryland & Virginia

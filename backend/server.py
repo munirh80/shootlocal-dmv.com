@@ -20,7 +20,7 @@ client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
 # Create the main app without a prefix
-app = FastAPI(title="DMV Gun Ranges API", version="1.0.0")
+app = FastAPI(title="DMV Gun Range API", version="1.0.0")
 
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
@@ -217,7 +217,7 @@ def calculate_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> fl
 # API Routes
 @api_router.get("/")
 async def root():
-    return {"message": "DMV Gun Ranges API - Find shooting ranges in DC, Maryland and Virginia"}
+    return {"message": "DMV Gun Range API - Find shooting ranges in DC, Maryland and Virginia"}
 
 @api_router.post("/ranges", response_model=Range)
 async def create_range(range_data: RangeCreate):
