@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, Query, HTTPException
+from fastapi import FastAPI, APIRouter, Query, HTTPException, Header, Depends
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -10,6 +10,8 @@ from typing import List, Optional, Dict, Any
 import uuid
 from datetime import datetime, timezone
 import math
+import hashlib
+import secrets
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -18,6 +20,21 @@ load_dotenv(ROOT_DIR / '.env')
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
+
+# Admin authentication
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'dmvgunrange2024')  # Default password
+admin_tokens = set()  # In-memory token storage
+
+def generate_token():
+    return secrets.token_hex(32)
+
+def verify_token(authorization: Optional[str] = Header(None)):
+    if not authorization or not authorization.startswith('Bearer '):
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    token = authorization.replace('Bearer ', '')
+    if token not in admin_tokens:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+    return token
 
 # Create the main app without a prefix
 app = FastAPI(title="DMV Gun Range API", version="1.0.0")
