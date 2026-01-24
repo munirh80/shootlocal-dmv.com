@@ -3,12 +3,31 @@
   text-align: left;
 }
 
-/* Tactical precision styling */
-.hero-bg {
-  background-image: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.7)), url('https://images.unsplash.com/photo-1762089424708-9615cb5041ec');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+/* Video header styling */
+.video-header {
+  position: relative;
+  height: 400px;
+  min-height: 400px;
+  overflow: hidden;
+}
+
+.video-header iframe {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100vw;
+  height: 56.25vw; /* 16:9 aspect ratio */
+  min-height: 100vh;
+  min-width: 177.77vh; /* 16:9 aspect ratio */
+  transform: translate(-50%, -50%);
+  z-index: 1;
+}
+
+@media (max-width: 768px) {
+  .video-header {
+    height: 300px;
+    min-height: 300px;
+  }
 }
 
 /* Custom scrollbar for results */
