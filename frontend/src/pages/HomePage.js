@@ -433,8 +433,8 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 grid-pattern">
-      {/* Header with Video */}
-      <header className="relative text-white overflow-hidden" style={{ minHeight: '400px' }}>
+      {/* Header with Video - Full Width */}
+      <header className="relative text-white overflow-hidden w-screen -mx-4 sm:-mx-6 lg:-mx-8" style={{ minHeight: '400px' }}>
         {/* YouTube Video Background */}
         <div className="absolute inset-0 w-full h-full z-0">
           <iframe
@@ -457,7 +457,7 @@ const HomePage = () => {
         </div>
         
         {/* Content overlay */}
-        <div className="relative z-20 container mx-auto px-4 py-12">
+        <div className="relative z-20 container mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center">
             <h1 data-testid="main-heading" className="text-4xl md:text-6xl font-black tactical-heading mb-4">
               RANGEFINDER VA/MD
