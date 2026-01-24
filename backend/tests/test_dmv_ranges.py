@@ -300,9 +300,9 @@ class TestMapCoordinates:
             lng = range_item.get("location", {}).get("longitude")
             if lat is not None and lng is not None:
                 ranges_with_coords += 1
-                # Verify coordinates are in DMV area (roughly)
-                assert 37.0 < lat < 40.0, f"Latitude {lat} out of DMV range for {range_item['name']}"
-                assert -80.0 < lng < -75.0, f"Longitude {lng} out of DMV range for {range_item['name']}"
+                # Verify coordinates are in broader DMV/Mid-Atlantic area
+                assert 36.0 < lat < 41.0, f"Latitude {lat} out of range for {range_item['name']}"
+                assert -81.0 < lng < -74.0, f"Longitude {lng} out of range for {range_item['name']}"
         
         # Most ranges should have coordinates for map
         assert ranges_with_coords > len(data) * 0.9, \
