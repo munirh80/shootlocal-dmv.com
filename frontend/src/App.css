@@ -3,6 +3,13 @@
   text-align: left;
 }
 
+/* Full width video header */
+header {
+  width: 100vw !important;
+  margin-left: calc(-50vw + 50%) !important;
+  position: relative;
+}
+
 /* Video header styling */
 .video-header {
   position: relative;
@@ -10,7 +17,6 @@
   min-height: 400px;
   overflow: hidden;
   width: 100vw;
-  margin-left: calc(-50vw + 50%);
 }
 
 .video-header iframe {
@@ -25,13 +31,6 @@
 }
 
 /* Ensure video covers the entire header area */
-header {
-  position: relative;
-  width: 100vw;
-  margin-left: calc(-50vw + 50%);
-  overflow: hidden;
-}
-
 header iframe {
   position: absolute !important;
   top: 50% !important;
@@ -52,8 +51,8 @@ header iframe {
   }
   
   header {
-    width: 100vw;
-    margin-left: calc(-50vw + 50%);
+    width: 100vw !important;
+    margin-left: calc(-50vw + 50%) !important;
   }
   
   header iframe {
