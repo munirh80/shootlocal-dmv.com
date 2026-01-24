@@ -444,6 +444,51 @@ async def submit_range(submission: RangeSubmission):
     
     return {"message": "Range submitted successfully. It will be reviewed by our team.", "id": range_doc["id"]}
 
+# Admin Endpoints
+@api_router.get("/admin/submissions")
+async def get_pending_submissions():
+    """Get all pending range submissions for admin review"""
+    submissions = await db.range_submissions.find(
+        {"pending_review": True},
+        {"_id": 0}
+    ).to_list(length=100)
+    return submissions
+
+@api_router.post("/admin/submissions/{submission_id}/approve")
+async def approve_submission(submission_id: str):
+    """Approve a range submission and add it to the main directory"""
+    # Find the submission
+    submission = await db.range_submissions.find_one(
+        {"id": submission_id},
+        {"_id": 0}
+    )
+    
+    if not submission:
+        raise HTTPException(status_code=404, detail="Submission not found")
+    
+    # Remove the pending_review flag and mark as verified
+    submission["pending_review"] = False
+    submission["verified"] = True
+    submission["updated_at"] = datetime.now(timezone.utc).isoformat()
+    
+    # Add to main ranges collection
+    await db.ranges.insert_one(submission)
+    
+    # Remove from submissions collection
+    await db.range_submissions.delete_one({"id": submission_id})
+    
+    return {"message": "Range approved and added to directory", "id": submission_id}
+
+@api_router.post("/admin/submissions/{submission_id}/reject")
+async def reject_submission(submission_id: str):
+    """Reject a range submission"""
+    result = await db.range_submissions.delete_one({"id": submission_id})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Submission not found")
+    
+    return {"message": "Submission rejected", "id": submission_id}
+
 @api_router.get("/stats")
 async def get_stats():
     """Get basic statistics about ranges in the database"""
