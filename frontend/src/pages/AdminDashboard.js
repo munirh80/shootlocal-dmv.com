@@ -5,10 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Badge } from '../components/ui/badge';
 import { 
   ArrowLeft, Check, X, Eye, MapPin, Phone, Globe, Clock, 
-  RefreshCw, Shield, AlertCircle 
+  RefreshCw, Shield, AlertCircle, LogOut 
 } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
+import { adminSession } from './AdminLogin';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -21,17 +22,39 @@ const AdminDashboard = () => {
   const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
+    // Check if user is authenticated
+    if (!adminSession.checkSession()) {
+      navigate('/admin');
+      return;
+    }
     loadSubmissions();
     loadStats();
-  }, []);
+  }, [navigate]);
+
+  const handleLogout = () => {
+    adminSession.clearSession();
+    toast.success('Logged out successfully');
+    navigate('/admin');
+  };
+
+  const getAuthHeaders = () => ({
+    headers: {
+      'Authorization': `Bearer ${adminSession.getToken()}`
+    }
+  });
 
   const loadSubmissions = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`${API_URL}/api/admin/submissions`);
+      const response = await axios.get(`${API_URL}/api/admin/submissions`, getAuthHeaders());
       setSubmissions(response.data);
     } catch (error) {
       console.error('Error loading submissions:', error);
+      if (error.response?.status === 401) {
+        adminSession.clearSession();
+        navigate('/admin');
+        return;
+      }
       toast.error('Failed to load submissions');
     } finally {
       setLoading(false);
