@@ -493,7 +493,7 @@ const HomePage = () => {
       </header>
 
       {/* Search Section */}
-      <section className="bg-white border-b-2 border-slate-200 py-6">
+      <section className="bg-white dark:bg-slate-800 border-b-2 border-slate-200 dark:border-slate-700 py-6 transition-colors duration-300">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row gap-4 items-center">
             <div className="flex-1 flex gap-2">
