@@ -213,5 +213,101 @@ class TestDataIntegrity:
             f"Only {ranges_with_contact}/{len(data)} ranges have contact info"
 
 
+class TestRangeSubmission:
+    """Tests for /api/ranges/submit endpoint - New feature for range owners to submit ranges"""
+    
+    def test_submit_range_success(self):
+        """Test successful range submission"""
+        submission_data = {
+            "name": "TEST_Backend_Submission_Range",
+            "phone": "+1 555-111-2222",
+            "website": "https://test-backend-range.com",
+            "email": "backend@test.com",
+            "address": "789 Backend Test Ave",
+            "city": "Reston",
+            "state": "VA",
+            "zip_code": "20190",
+            "description": "Test range submission from backend tests",
+            "hours": {"monday": "10AM-6PM", "tuesday": "10AM-6PM"},
+            "amenities": {"indoor": True, "handgun": True, "rifle": False}
+        }
+        
+        response = requests.post(f"{BASE_URL}/api/ranges/submit", json=submission_data)
+        assert response.status_code == 200
+        
+        data = response.json()
+        assert "message" in data
+        assert "id" in data
+        assert "submitted successfully" in data["message"].lower()
+        assert len(data["id"]) > 0  # UUID should be generated
+    
+    def test_submit_range_minimal_data(self):
+        """Test range submission with only required fields"""
+        submission_data = {
+            "name": "TEST_Minimal_Range",
+            "address": "123 Minimal St",
+            "city": "Arlington",
+            "state": "VA",
+            "zip_code": "22201"
+        }
+        
+        response = requests.post(f"{BASE_URL}/api/ranges/submit", json=submission_data)
+        assert response.status_code == 200
+        
+        data = response.json()
+        assert "id" in data
+    
+    def test_submit_range_missing_required_field(self):
+        """Test range submission fails without required name field"""
+        submission_data = {
+            "address": "123 No Name St",
+            "city": "Arlington",
+            "state": "VA",
+            "zip_code": "22201"
+        }
+        
+        response = requests.post(f"{BASE_URL}/api/ranges/submit", json=submission_data)
+        # Should fail validation - missing name
+        assert response.status_code == 422  # Validation error
+    
+    def test_submit_range_all_states(self):
+        """Test range submission works for all DMV states"""
+        for state in ["VA", "MD", "DC"]:
+            submission_data = {
+                "name": f"TEST_Range_{state}",
+                "address": f"123 {state} Street",
+                "city": "Test City",
+                "state": state,
+                "zip_code": "12345"
+            }
+            
+            response = requests.post(f"{BASE_URL}/api/ranges/submit", json=submission_data)
+            assert response.status_code == 200, f"Failed for state {state}"
+
+
+class TestMapCoordinates:
+    """Tests for range coordinates used in map view"""
+    
+    def test_ranges_have_coordinates(self):
+        """Test that ranges have latitude and longitude for map display"""
+        response = requests.get(f"{BASE_URL}/api/ranges?limit=100")
+        assert response.status_code == 200
+        
+        data = response.json()
+        ranges_with_coords = 0
+        for range_item in data:
+            lat = range_item.get("location", {}).get("latitude")
+            lng = range_item.get("location", {}).get("longitude")
+            if lat is not None and lng is not None:
+                ranges_with_coords += 1
+                # Verify coordinates are in DMV area (roughly)
+                assert 37.0 < lat < 40.0, f"Latitude {lat} out of DMV range for {range_item['name']}"
+                assert -80.0 < lng < -75.0, f"Longitude {lng} out of DMV range for {range_item['name']}"
+        
+        # Most ranges should have coordinates for map
+        assert ranges_with_coords > len(data) * 0.9, \
+            f"Only {ranges_with_coords}/{len(data)} ranges have coordinates"
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
