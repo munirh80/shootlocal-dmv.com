@@ -516,7 +516,7 @@ async def approve_submission(submission_id: str, token: str = Depends(verify_tok
     return {"message": "Range approved and added to directory", "id": submission_id}
 
 @api_router.post("/admin/submissions/{submission_id}/reject")
-async def reject_submission(submission_id: str):
+async def reject_submission(submission_id: str, token: str = Depends(verify_token)):
     """Reject a range submission"""
     result = await db.range_submissions.delete_one({"id": submission_id})
     
