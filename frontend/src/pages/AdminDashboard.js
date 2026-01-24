@@ -52,6 +52,34 @@ const AdminDashboard = () => {
     }
   });
 
+  const handleChangePassword = async () => {
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      toast.error('New passwords do not match');
+      return;
+    }
+    if (passwordForm.newPassword.length < 8) {
+      toast.error('Password must be at least 8 characters');
+      return;
+    }
+    
+    setChangingPassword(true);
+    try {
+      await axios.post(`${API_URL}/api/admin/change-password`, {
+        current_password: passwordForm.currentPassword,
+        new_password: passwordForm.newPassword
+      }, getAuthHeaders());
+      
+      toast.success('Password changed successfully!');
+      setShowSettings(false);
+      setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    } catch (error) {
+      console.error('Error changing password:', error);
+      toast.error(error.response?.data?.detail || 'Failed to change password');
+    } finally {
+      setChangingPassword(false);
+    }
+  };
+
   const loadSubmissions = async () => {
     setLoading(true);
     try {
