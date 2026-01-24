@@ -679,6 +679,82 @@ async def get_current_user(user_data: dict = Depends(verify_user_token)):
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
+# Google OAuth callback model
+class GoogleCallbackRequest(BaseModel):
+    session_id: str
+
+@api_router.post("/auth/google/callback")
+async def google_oauth_callback(request: GoogleCallbackRequest):
+    """Process Google OAuth callback and create/login user"""
+    try:
+        # Exchange session_id for user data from Emergent Auth
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                "https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data",
+                headers={"X-Session-ID": request.session_id}
+            )
+            
+            if response.status_code != 200:
+                raise HTTPException(status_code=401, detail="Invalid session ID")
+            
+            google_data = response.json()
+        
+        email = google_data.get("email", "").lower()
+        name = google_data.get("name", "")
+        picture = google_data.get("picture", "")
+        
+        if not email:
+            raise HTTPException(status_code=400, detail="Email not provided by Google")
+        
+        # Check if user exists
+        existing_user = await db.users.find_one({"email": email}, {"_id": 0})
+        
+        if existing_user:
+            # Update user info if needed
+            await db.users.update_one(
+                {"email": email},
+                {"$set": {
+                    "name": name or existing_user.get("name"),
+                    "picture": picture,
+                    "updated_at": datetime.now(timezone.utc).isoformat()
+                }}
+            )
+            user_id = existing_user["id"]
+            user_name = name or existing_user.get("name")
+        else:
+            # Create new user
+            user_id = str(uuid.uuid4())
+            user_doc = {
+                "id": user_id,
+                "email": email,
+                "name": name,
+                "picture": picture,
+                "auth_provider": "google",
+                "favorites": [],
+                "created_at": datetime.now(timezone.utc).isoformat(),
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }
+            await db.users.insert_one(user_doc)
+            user_name = name
+        
+        # Generate JWT token
+        token = create_user_token(user_id, email)
+        
+        return {
+            "success": True,
+            "token": token,
+            "user": {
+                "id": user_id,
+                "email": email,
+                "name": user_name,
+                "picture": picture
+            }
+        }
+        
+    except httpx.HTTPError as e:
+        logger.error(f"Google OAuth error: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to authenticate with Google")
+
 # ==================== FAVORITES ====================
 
 @api_router.post("/favorites/{range_id}")
