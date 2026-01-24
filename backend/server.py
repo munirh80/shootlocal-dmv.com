@@ -494,6 +494,39 @@ async def admin_logout(token: str = Depends(verify_token)):
     admin_tokens.discard(token)
     return {"success": True}
 
+@api_router.post("/admin/change-password")
+async def change_admin_password(request: ChangePasswordRequest, token: str = Depends(verify_token)):
+    """Change admin password"""
+    global ADMIN_PASSWORD
+    
+    # Verify current password
+    if request.current_password != ADMIN_PASSWORD:
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+    
+    # Validate new password
+    if len(request.new_password) < 8:
+        raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
+    
+    # Update password in memory
+    ADMIN_PASSWORD = request.new_password
+    
+    # Also update the .env file
+    try:
+        env_path = ROOT_DIR / '.env'
+        with open(env_path, 'r') as f:
+            lines = f.readlines()
+        
+        with open(env_path, 'w') as f:
+            for line in lines:
+                if line.startswith('ADMIN_PASSWORD='):
+                    f.write(f'ADMIN_PASSWORD="{request.new_password}"\n')
+                else:
+                    f.write(line)
+    except Exception as e:
+        logging.error(f"Failed to update .env file: {e}")
+    
+    return {"success": True, "message": "Password changed successfully"}
+
 @api_router.get("/admin/submissions")
 async def get_pending_submissions(token: str = Depends(verify_token)):
     """Get all pending range submissions for admin review"""
