@@ -144,6 +144,9 @@ const HomePage = () => {
   const handleFilterChange = (filterKey, value) => {
     const newFilters = { ...filters, [filterKey]: value };
     setFilters(newFilters);
+    
+    // Trigger search with new filters
+    searchRanges(searchQuery, userLocation);
   };
 
   const clearFilters = () => {
