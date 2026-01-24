@@ -486,6 +486,10 @@ const HomePage = () => {
                   <div className="text-2xl font-bold text-orange-500">{stats.maryland_ranges}</div>
                   <div className="text-slate-300">Maryland</div>
                 </div>
+                <div data-testid="dc-ranges-stat" className="text-center">
+                  <div className="text-2xl font-bold text-orange-500">{stats.dc_ranges}</div>
+                  <div className="text-slate-300">DC</div>
+                </div>
               </div>
             )}
           </div>
