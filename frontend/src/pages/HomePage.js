@@ -444,7 +444,7 @@ const HomePage = () => {
                   <div className="text-slate-300">Total Ranges</div>
                 </div>
                 <div data-testid="va-ranges-stat" className="text-center">
-                  <div className="text-2xl font-bold safety-orange">{stats.virginia_ranges}</div>
+                  <div className="text-2xl font-bold text-orange-500">{stats.virginia_ranges}</div>
                   <div className="text-slate-300">Virginia</div>
                 </div>
                 <div data-testid="md-ranges-stat" className="text-center">
