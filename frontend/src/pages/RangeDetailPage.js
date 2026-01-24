@@ -134,7 +134,7 @@ const RangeDetailPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 grid-pattern">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 grid-pattern transition-colors duration-300">
       {/* Header */}
       <header className="bg-white border-b-2 border-slate-200">
         <div className="container mx-auto px-4 py-6">
