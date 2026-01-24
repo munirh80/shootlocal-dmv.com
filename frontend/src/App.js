@@ -5,6 +5,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import HomePage from "./pages/HomePage";
 import RangeDetailPage from "./pages/RangeDetailPage";
 import SubmitRangePage from "./pages/SubmitRangePage";
+import AdminDashboard from "./pages/AdminDashboard";
 import "./App.css";
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/range/:id" element={<RangeDetailPage />} />
             <Route path="/submit" element={<SubmitRangePage />} />
+            <Route path="/admin" element={<AdminDashboard />} />
           </Routes>
           <Toaster position="top-right" />
         </BrowserRouter>
