@@ -172,7 +172,7 @@ const HomePage = () => {
     setFilters(clearedFilters);
     
     // Trigger search with cleared filters
-    searchRanges(searchQuery, userLocation);
+    searchRanges(searchQuery, userLocation, clearedFilters);
   };
 
   const getAmenityBadges = (amenities) => {
