@@ -555,7 +555,7 @@ const HomePage = () => {
               {loading ? (
                 <div data-testid="loading-indicator" className="text-center py-12">
                   <div className="inline-flex items-center gap-2 text-slate-600">
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-safety-orange"></div>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-orange-500"></div>
                     Searching ranges...
                   </div>
                 </div>
