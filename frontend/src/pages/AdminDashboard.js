@@ -73,13 +73,18 @@ const AdminDashboard = () => {
   const handleApprove = async (submissionId) => {
     setProcessing(true);
     try {
-      await axios.post(`${API_URL}/api/admin/submissions/${submissionId}/approve`);
+      await axios.post(`${API_URL}/api/admin/submissions/${submissionId}/approve`, {}, getAuthHeaders());
       toast.success('Range approved and added to directory!');
       loadSubmissions();
       loadStats();
       setSelectedSubmission(null);
     } catch (error) {
       console.error('Error approving submission:', error);
+      if (error.response?.status === 401) {
+        adminSession.clearSession();
+        navigate('/admin');
+        return;
+      }
       toast.error('Failed to approve submission');
     } finally {
       setProcessing(false);
@@ -89,12 +94,17 @@ const AdminDashboard = () => {
   const handleReject = async (submissionId) => {
     setProcessing(true);
     try {
-      await axios.post(`${API_URL}/api/admin/submissions/${submissionId}/reject`);
+      await axios.post(`${API_URL}/api/admin/submissions/${submissionId}/reject`, {}, getAuthHeaders());
       toast.success('Submission rejected');
       loadSubmissions();
       setSelectedSubmission(null);
     } catch (error) {
       console.error('Error rejecting submission:', error);
+      if (error.response?.status === 401) {
+        adminSession.clearSession();
+        navigate('/admin');
+        return;
+      }
       toast.error('Failed to reject submission');
     } finally {
       setProcessing(false);
