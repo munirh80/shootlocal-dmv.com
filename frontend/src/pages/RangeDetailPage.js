@@ -31,6 +31,40 @@ const RangeDetailPage = () => {
     loadRange();
   }, [id]);
 
+  // Check favorite status when auth state or range changes
+  useEffect(() => {
+    if (isAuthenticated && id) {
+      setIsFav(isFavorite(id));
+    } else {
+      setIsFav(false);
+    }
+  }, [isAuthenticated, id, isFavorite]);
+
+  const handleFavoriteClick = async () => {
+    if (!isAuthenticated) {
+      setShowAuthModal(true);
+      return;
+    }
+
+    if (isFav) {
+      const result = await removeFavorite(id);
+      if (result.success) {
+        setIsFav(false);
+        toast.success('Removed from favorites');
+      } else {
+        toast.error(result.error);
+      }
+    } else {
+      const result = await addFavorite(id);
+      if (result.success) {
+        setIsFav(true);
+        toast.success('Added to favorites!');
+      } else {
+        toast.error(result.error);
+      }
+    }
+  };
+
   const loadRange = async () => {
     try {
       const response = await axios.get(`${API}/ranges/${id}`);
