@@ -22,6 +22,10 @@ const RangeDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  
+  const { isAuthenticated, isFavorite, addFavorite, removeFavorite } = useAuth();
+  const [isFav, setIsFav] = useState(false);
 
   useEffect(() => {
     loadRange();
