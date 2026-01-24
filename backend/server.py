@@ -369,7 +369,80 @@ async def get_range(range_id: str):
 @api_router.get("/states")
 async def get_available_states():
     """Get list of available states"""
-    return [{"code": "VA", "name": "Virginia"}, {"code": "MD", "name": "Maryland"}]
+    return [{"code": "VA", "name": "Virginia"}, {"code": "MD", "name": "Maryland"}, {"code": "DC", "name": "District of Columbia"}]
+
+# Range Submission Model
+class RangeSubmission(BaseModel):
+    name: str
+    phone: Optional[str] = None
+    website: Optional[str] = None
+    email: Optional[str] = None
+    address: str
+    city: str
+    state: str
+    zip_code: str
+    description: Optional[str] = None
+    hours: Optional[Dict[str, str]] = None
+    amenities: Optional[Dict[str, bool]] = None
+
+@api_router.post("/ranges/submit")
+async def submit_range(submission: RangeSubmission):
+    """Submit a new range for review (pending approval)"""
+    
+    # Create the range document
+    range_doc = {
+        "id": str(uuid.uuid4()),
+        "name": submission.name,
+        "description": submission.description,
+        "phone": submission.phone,
+        "website": submission.website,
+        "email": submission.email,
+        "location": {
+            "address": submission.address,
+            "city": submission.city,
+            "state": submission.state.upper(),
+            "zip_code": submission.zip_code,
+            "latitude": None,
+            "longitude": None
+        },
+        "hours": submission.hours,
+        "amenities": submission.amenities or {
+            "indoor": False,
+            "outdoor": False,
+            "handgun": False,
+            "rifle": False,
+            "shotgun": False,
+            "archery": False,
+            "equipment_rentals": False,
+            "instruction": False,
+            "retail_store": False,
+            "concealed_carry_classes": False,
+            "basic_firearm_training": False,
+            "advanced_training": False,
+            "trap": False,
+            "skeet": False,
+            "sporting_clays": False,
+            "ada_accessible": False,
+            "climate_controlled": False,
+            "public_access": True,
+            "members_only": False
+        },
+        "pricing": None,
+        "photos": [],
+        "google_rating": None,
+        "google_reviews": None,
+        "google_maps_url": None,
+        "nssf_member": False,
+        "verified": False,  # Not verified until admin reviews
+        "pending_review": True,  # Flag for admin review
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    # Insert into submissions collection for review
+    await db.range_submissions.insert_one(range_doc)
+    
+    return {"message": "Range submitted successfully. It will be reviewed by our team.", "id": range_doc["id"]}
 
 @api_router.get("/stats")
 async def get_stats():
