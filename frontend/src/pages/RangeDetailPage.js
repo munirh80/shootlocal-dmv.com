@@ -191,7 +191,7 @@ const RangeDetailPage = () => {
             {range.location.address}, {range.location.city}, {range.location.state} {range.location.zip_code}
           </p>
           
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 mb-4">
             {range.amenities.indoor && (
               <Badge data-testid="indoor-badge" variant="secondary">Indoor Range</Badge>
             )}
@@ -205,6 +205,12 @@ const RangeDetailPage = () => {
               <Badge data-testid="members-only-badge" variant="secondary">Members Only</Badge>
             )}
           </div>
+          
+          {/* Share Buttons */}
+          <ShareButtons 
+            title={`${range.name} - Shooting Range in ${range.location.city}, ${range.location.state}`}
+            description={range.description || `Check out ${range.name}, a shooting range in ${range.location.city}, ${range.location.state}`}
+          />
         </div>
       </header>
 
