@@ -470,6 +470,46 @@ const RangeDetailPage = () => {
           </div>
         </div>
       </main>
+
+      {/* Photo Lightbox */}
+      {lightboxOpen && range.photos && range.photos.length > 0 && (
+        <div 
+          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center"
+          onClick={closeLightbox}
+        >
+          <button
+            className="absolute top-4 right-4 text-white hover:text-orange-500 transition-colors"
+            onClick={closeLightbox}
+          >
+            <X className="w-8 h-8" />
+          </button>
+          
+          <button
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:text-orange-500 transition-colors p-2"
+            onClick={(e) => { e.stopPropagation(); prevPhoto(); }}
+          >
+            <ChevronLeft className="w-10 h-10" />
+          </button>
+          
+          <img
+            src={range.photos[currentPhotoIndex]}
+            alt={`${range.name} - Photo ${currentPhotoIndex + 1}`}
+            className="max-w-[90vw] max-h-[85vh] object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+          
+          <button
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-orange-500 transition-colors p-2"
+            onClick={(e) => { e.stopPropagation(); nextPhoto(); }}
+          >
+            <ChevronRight className="w-10 h-10" />
+          </button>
+          
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white text-sm">
+            {currentPhotoIndex + 1} / {range.photos.length}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
