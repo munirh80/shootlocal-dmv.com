@@ -95,7 +95,7 @@ const HomePage = () => {
     }
   };
 
-  const searchRanges = async (query = searchQuery, location = userLocation) => {
+  const searchRanges = async (query = searchQuery, location = userLocation, searchFilters = filters) => {
     try {
       setLoading(true);
       
@@ -119,7 +119,7 @@ const HomePage = () => {
       }
       
       // Add filters
-      Object.entries(filters).forEach(([key, value]) => {
+      Object.entries(searchFilters).forEach(([key, value]) => {
         if (value !== null) {
           params.append(key, value);
         }
