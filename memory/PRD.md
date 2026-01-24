@@ -126,12 +126,13 @@ Build a shooting range directory for all gun ranges in the DMV area (DC, Marylan
 - [x] Interactive map view with geocoded ranges
 - [x] Range submission form
 - [x] Admin dashboard for reviewing submissions
+- [x] Admin authentication (password protected)
 
 ### P1 - Next Up
 - [ ] Email notifications for range submissions
-- [ ] Admin authentication (currently open access)
 - [ ] Map marker clustering for zoom levels
 - [ ] Range photo uploads
+- [ ] Change admin password feature
 
 ### P2 - Future
 - [ ] Bulk import system (CSV/Excel upload)
