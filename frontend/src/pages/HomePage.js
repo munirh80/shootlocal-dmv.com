@@ -146,7 +146,7 @@ const HomePage = () => {
     setFilters(newFilters);
     
     // Trigger search with new filters
-    searchRanges(searchQuery, userLocation);
+    searchRanges(searchQuery, userLocation, newFilters);
   };
 
   const clearFilters = () => {
