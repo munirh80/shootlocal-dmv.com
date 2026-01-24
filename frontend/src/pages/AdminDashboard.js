@@ -342,6 +342,76 @@ const AdminDashboard = () => {
     </div>
   );
 
+  const SettingsModal = () => (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white dark:bg-slate-800 rounded-lg max-w-md w-full">
+        <div className="p-6">
+          <div className="flex justify-between items-start mb-6">
+            <div>
+              <h2 className="text-xl font-bold flex items-center">
+                <Lock className="w-5 h-5 mr-2 text-orange-500" />
+                Change Password
+              </h2>
+            </div>
+            <Button variant="ghost" size="sm" onClick={() => setShowSettings(false)}>
+              <X className="w-5 h-5" />
+            </Button>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="currentPassword">Current Password</Label>
+              <Input
+                id="currentPassword"
+                type="password"
+                value={passwordForm.currentPassword}
+                onChange={(e) => setPasswordForm(prev => ({ ...prev, currentPassword: e.target.value }))}
+                className="bg-slate-50 dark:bg-slate-700"
+              />
+            </div>
+            <div>
+              <Label htmlFor="newPassword">New Password</Label>
+              <Input
+                id="newPassword"
+                type="password"
+                value={passwordForm.newPassword}
+                onChange={(e) => setPasswordForm(prev => ({ ...prev, newPassword: e.target.value }))}
+                className="bg-slate-50 dark:bg-slate-700"
+              />
+            </div>
+            <div>
+              <Label htmlFor="confirmPassword">Confirm New Password</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={passwordForm.confirmPassword}
+                onChange={(e) => setPasswordForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                className="bg-slate-50 dark:bg-slate-700"
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-3 mt-6">
+            <Button
+              onClick={handleChangePassword}
+              disabled={changingPassword || !passwordForm.currentPassword || !passwordForm.newPassword}
+              className="flex-1 bg-orange-500 hover:bg-orange-600"
+            >
+              {changingPassword ? 'Changing...' : 'Change Password'}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setShowSettings(false)}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-slate-900">
       {/* Header */}
@@ -364,6 +434,16 @@ const AdminDashboard = () => {
                 <span className="font-semibold">Admin Dashboard</span>
               </div>
               <Button
+                data-testid="settings-btn"
+                variant="outline"
+                size="sm"
+                onClick={() => setShowSettings(true)}
+                className="text-slate-300 border-slate-600 hover:bg-slate-700"
+              >
+                <Settings className="w-4 h-4 mr-1" />
+                Settings
+              </Button>
+              <Button
                 data-testid="logout-btn"
                 variant="outline"
                 size="sm"
@@ -377,6 +457,9 @@ const AdminDashboard = () => {
           </div>
         </div>
       </header>
+
+      {/* Settings Modal */}
+      {showSettings && <SettingsModal />}
 
       <main className="container mx-auto px-4 py-8">
         {/* Stats Cards */}
