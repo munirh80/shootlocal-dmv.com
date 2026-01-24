@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, MapPin, Phone, Globe, Clock, DollarSign, Shield, Target, Users, Award } from "lucide-react";
+import { ArrowLeft, MapPin, Phone, Globe, Clock, DollarSign, Shield, Target, Users, Award, Camera, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
@@ -15,6 +15,8 @@ const RangeDetailPage = () => {
   const { id } = useParams();
   const [range, setRange] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
 
   useEffect(() => {
     loadRange();
@@ -29,6 +31,27 @@ const RangeDetailPage = () => {
       toast.error("Failed to load range details");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const openLightbox = (index) => {
+    setCurrentPhotoIndex(index);
+    setLightboxOpen(true);
+  };
+
+  const closeLightbox = () => {
+    setLightboxOpen(false);
+  };
+
+  const nextPhoto = () => {
+    if (range?.photos?.length > 0) {
+      setCurrentPhotoIndex((prev) => (prev + 1) % range.photos.length);
+    }
+  };
+
+  const prevPhoto = () => {
+    if (range?.photos?.length > 0) {
+      setCurrentPhotoIndex((prev) => (prev - 1 + range.photos.length) % range.photos.length);
     }
   };
 
