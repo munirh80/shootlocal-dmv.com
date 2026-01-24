@@ -172,4 +172,48 @@ code {
   .tactical-badge {
       @apply bg-slate-900 text-white text-xs font-bold px-2 py-1 uppercase tracking-wider;
   }
+
+  .range-card {
+    @apply border-2 border-slate-200 bg-white shadow-sm hover:border-orange-500 transition-all duration-200;
+  }
+
+  .range-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .filter-panel {
+    @apply bg-white border-r-2 border-slate-200 shadow-sm;
+  }
+
+  .map-container {
+    @apply bg-slate-100 border-2 border-slate-200;
+  }
+
+  /* Interactive elements */
+  .interactive-element {
+    @apply transition-all duration-150 ease-out;
+  }
+
+  .interactive-element:hover {
+    @apply shadow-sm;
+  }
+
+  /* Range marker styles */
+  .range-marker {
+    @apply bg-orange-500 text-white border-2 border-white shadow-lg rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold;
+  }
+
+  .range-marker.selected {
+    @apply bg-slate-900 scale-110;
+  }
+
+  /* Tactical form elements */
+  .tactical-checkbox {
+    @apply border-2 border-slate-300 rounded-none focus:ring-orange-500;
+  }
+
+  .tactical-radio {
+    @apply border-2 border-slate-300 focus:ring-orange-500;
+  }
 }
