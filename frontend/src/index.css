@@ -155,19 +155,21 @@ code {
     }
 }
 
-/* Tactical UI Styles */
-.tactical-card {
-    @apply border-2 border-slate-200 bg-white shadow-sm;
-}
+@layer components {
+  /* Tactical UI Styles */
+  .tactical-card {
+      @apply border-2 border-slate-200 bg-white shadow-sm;
+  }
 
-.tactical-button {
-    @apply bg-safety-orange hover:bg-orange-600 text-white font-bold py-2 px-4 text-sm uppercase tracking-wider transition-colors duration-200;
-}
+  .tactical-button {
+      @apply bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 text-sm uppercase tracking-wider transition-colors duration-200;
+  }
 
-.tactical-input {
-    @apply border-2 border-slate-300 bg-slate-50 focus:border-safety-orange focus:ring-0 focus:ring-offset-0;
-}
+  .tactical-input {
+      @apply border-2 border-slate-300 bg-slate-50 focus:border-orange-500 focus:ring-0 focus:ring-offset-0;
+  }
 
-.tactical-badge {
-    @apply bg-slate-900 text-white text-xs font-bold px-2 py-1 uppercase tracking-wider;
+  .tactical-badge {
+      @apply bg-slate-900 text-white text-xs font-bold px-2 py-1 uppercase tracking-wider;
+  }
 }
