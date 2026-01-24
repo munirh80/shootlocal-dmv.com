@@ -4,7 +4,7 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Checkbox } from '../components/ui/checkbox';
-import { ArrowLeft, Send, MapPin, Phone, Globe, Clock } from 'lucide-react';
+import { ArrowLeft, Send, MapPin, Phone, Globe, Clock, Camera, X, Upload } from 'lucide-react';
 
 const API_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -15,6 +15,8 @@ const SubmitRangePage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState(null);
+  const [photos, setPhotos] = useState([]);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -26,6 +28,7 @@ const SubmitRangePage = () => {
     state: 'VA',
     zip_code: '',
     description: '',
+    photos: [],
     hours: {
       monday: '',
       tuesday: '',
