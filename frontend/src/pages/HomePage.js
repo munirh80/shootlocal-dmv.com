@@ -17,6 +17,7 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 const HomePage = () => {
+  const navigate = useNavigate();
   const [ranges, setRanges] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -24,6 +25,7 @@ const HomePage = () => {
   const [radius, setRadius] = useState("20");
   const [stats, setStats] = useState(null);
   const [selectedRange, setSelectedRange] = useState(null);
+  const [viewMode, setViewMode] = useState("list"); // "list" or "map"
   
   // Filter states
   const [filters, setFilters] = useState({
