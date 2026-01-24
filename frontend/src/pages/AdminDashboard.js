@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
 import { 
   ArrowLeft, Check, X, Eye, MapPin, Phone, Globe, Clock, 
-  RefreshCw, Shield, AlertCircle, LogOut 
+  RefreshCw, Shield, AlertCircle, LogOut, Settings, Lock 
 } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
@@ -20,6 +22,13 @@ const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
   const [selectedSubmission, setSelectedSubmission] = useState(null);
   const [processing, setProcessing] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+  const [changingPassword, setChangingPassword] = useState(false);
 
   useEffect(() => {
     // Check if user is authenticated
