@@ -330,6 +330,9 @@ const RangeDetailPage = () => {
                 </CardContent>
               </Card>
             )}
+
+            {/* Reviews Section */}
+            <RangeReviews rangeId={range.id} rangeName={range.name} />
           </div>
 
           {/* Right Column - Contact & Info */}
