@@ -461,9 +461,28 @@ async def submit_range(submission: RangeSubmission):
     
     return {"message": "Range submitted successfully. It will be reviewed by our team.", "id": range_doc["id"]}
 
+# Admin Login Model
+class AdminLoginRequest(BaseModel):
+    password: str
+
 # Admin Endpoints
+@api_router.post("/admin/login")
+async def admin_login(request: AdminLoginRequest):
+    """Authenticate admin user"""
+    if request.password == ADMIN_PASSWORD:
+        token = generate_token()
+        admin_tokens.add(token)
+        return {"success": True, "token": token}
+    raise HTTPException(status_code=401, detail="Invalid password")
+
+@api_router.post("/admin/logout")
+async def admin_logout(token: str = Depends(verify_token)):
+    """Logout admin user"""
+    admin_tokens.discard(token)
+    return {"success": True}
+
 @api_router.get("/admin/submissions")
-async def get_pending_submissions():
+async def get_pending_submissions(token: str = Depends(verify_token)):
     """Get all pending range submissions for admin review"""
     submissions = await db.range_submissions.find(
         {"pending_review": True},
@@ -472,7 +491,7 @@ async def get_pending_submissions():
     return submissions
 
 @api_router.post("/admin/submissions/{submission_id}/approve")
-async def approve_submission(submission_id: str):
+async def approve_submission(submission_id: str, token: str = Depends(verify_token)):
     """Approve a range submission and add it to the main directory"""
     # Find the submission
     submission = await db.range_submissions.find_one(
