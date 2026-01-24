@@ -66,9 +66,11 @@ Build a shooting range directory for all gun ranges in the DMV area (DC, Marylan
 | `/api/ranges/submit` | POST | Submit a new range for review |
 | `/api/stats` | GET | Get range statistics |
 | `/api/states` | GET | Get list of states (VA, MD, DC) |
-| `/api/admin/submissions` | GET | List pending submissions |
-| `/api/admin/submissions/{id}/approve` | POST | Approve submission |
-| `/api/admin/submissions/{id}/reject` | POST | Reject submission |
+| `/api/admin/login` | POST | Authenticate admin (returns token) |
+| `/api/admin/logout` | POST | Logout admin (protected) |
+| `/api/admin/submissions` | GET | List pending submissions (protected) |
+| `/api/admin/submissions/{id}/approve` | POST | Approve submission (protected) |
+| `/api/admin/submissions/{id}/reject` | POST | Reject submission (protected) |
 
 ## Database Schema
 ```javascript
