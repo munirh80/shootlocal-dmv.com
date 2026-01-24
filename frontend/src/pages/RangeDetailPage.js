@@ -160,6 +160,9 @@ const RangeDetailPage = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 grid-pattern transition-colors duration-300">
+      {/* SEO */}
+      <RangeSEO range={range} />
+      
       {/* Header */}
       <header className="bg-white dark:bg-slate-800 border-b-2 border-slate-200 dark:border-slate-700 transition-colors duration-300">
         <div className="container mx-auto px-4 py-6">
