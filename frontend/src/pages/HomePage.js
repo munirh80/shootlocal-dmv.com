@@ -433,9 +433,25 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 grid-pattern">
-      {/* Header */}
-      <header className="hero-bg text-white">
-        <div className="container mx-auto px-4 py-12">
+      {/* Header with Video */}
+      <header className="relative text-white overflow-hidden">
+        {/* YouTube Video Background */}
+        <div className="absolute inset-0 w-full h-full">
+          <iframe
+            src="https://www.youtube.com/embed/JnempufjTdw?autoplay=1&mute=1&loop=1&playlist=JnempufjTdw&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1"
+            title="Shooting Range Video"
+            className="w-full h-full object-cover"
+            style={{ minHeight: '400px' }}
+            allow="autoplay; encrypted-media"
+            allowFullScreen
+            frameBorder="0"
+          />
+          {/* Dark overlay for text readability */}
+          <div className="absolute inset-0 bg-slate-900 bg-opacity-60"></div>
+        </div>
+        
+        {/* Content overlay */}
+        <div className="relative z-10 container mx-auto px-4 py-12">
           <div className="text-center">
             <h1 data-testid="main-heading" className="text-4xl md:text-6xl font-black tactical-heading mb-4">
               RANGEFINDER VA/MD
