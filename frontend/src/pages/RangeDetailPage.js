@@ -207,6 +207,35 @@ const RangeDetailPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column - Details */}
           <div className="lg:col-span-2 space-y-6">
+            {/* Photo Gallery */}
+            {range.photos && range.photos.length > 0 && (
+              <Card data-testid="photos-card" className="tactical-card">
+                <CardHeader>
+                  <CardTitle className="tactical-heading flex items-center">
+                    <Camera className="w-5 h-5 mr-2" />
+                    Photos ({range.photos.length})
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {range.photos.map((photo, index) => (
+                      <div 
+                        key={index}
+                        className="aspect-video cursor-pointer overflow-hidden rounded-lg hover:opacity-90 transition-opacity"
+                        onClick={() => openLightbox(index)}
+                      >
+                        <img
+                          src={photo}
+                          alt={`${range.name} - Photo ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Description */}
             {range.description && (
               <Card data-testid="description-card" className="tactical-card">
@@ -214,7 +243,7 @@ const RangeDetailPage = () => {
                   <CardTitle className="tactical-heading">About This Range</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-slate-700">{range.description}</p>
+                  <p className="text-slate-700 dark:text-slate-300">{range.description}</p>
                 </CardContent>
               </Card>
             )}
