@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, MapPin, Phone, Globe, Clock, DollarSign, Shield, Target, Users, Award, Camera, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ArrowLeft, MapPin, Phone, Globe, Clock, DollarSign, Shield, Target, Users, Award, Camera, ChevronLeft, ChevronRight, X, Heart } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
@@ -10,6 +10,8 @@ import axios from "axios";
 import RangeReviews from "../components/RangeReviews";
 import ShareButtons from "../components/ShareButtons";
 import { RangeSEO } from "../components/SEO";
+import { useAuth } from "../contexts/AuthContext";
+import AuthModal from "../components/AuthModal";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
