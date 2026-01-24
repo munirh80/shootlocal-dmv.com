@@ -95,6 +95,12 @@ header iframe {
   background-size: 20px 20px;
 }
 
+.dark .grid-pattern {
+  background-image: 
+    linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
+}
+
 /* HUD-style elements */
 .hud-element {
   @apply bg-slate-900/90 text-white backdrop-blur-sm border border-slate-700;
