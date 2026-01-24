@@ -204,25 +204,41 @@ const RangeDetailPage = () => {
       {/* SEO */}
       <RangeSEO range={range} />
       
+      {/* Auth Modal */}
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+      
       {/* Header */}
       <header className="bg-white dark:bg-slate-800 border-b-2 border-slate-200 dark:border-slate-700 transition-colors duration-300">
         <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center gap-4 mb-4">
-            <Link to="/" data-testid="back-link">
-              <Button variant="outline" size="sm" className="interactive-element">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Search
-              </Button>
-            </Link>
-            {range.nssf_member && (
-              <Badge data-testid="nssf-member-badge" className="tactical-badge">NSSF Member</Badge>
-            )}
-            {range.verified && (
-              <Badge data-testid="verified-badge" className="bg-green-600 text-white">
-                <Shield className="w-3 h-3 mr-1" />
-                Verified
-              </Badge>
-            )}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-4">
+              <Link to="/" data-testid="back-link">
+                <Button variant="outline" size="sm" className="interactive-element">
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back to Search
+                </Button>
+              </Link>
+              {range.nssf_member && (
+                <Badge data-testid="nssf-member-badge" className="tactical-badge">NSSF Member</Badge>
+              )}
+              {range.verified && (
+                <Badge data-testid="verified-badge" className="bg-green-600 text-white">
+                  <Shield className="w-3 h-3 mr-1" />
+                  Verified
+                </Badge>
+              )}
+            </div>
+            
+            {/* Favorite Button */}
+            <Button
+              onClick={handleFavoriteClick}
+              variant={isFav ? "default" : "outline"}
+              className={`flex items-center gap-2 ${isFav ? 'bg-red-500 hover:bg-red-600 text-white' : ''}`}
+              data-testid="favorite-btn"
+            >
+              <Heart className={`w-5 h-5 ${isFav ? 'fill-current' : ''}`} />
+              {isFav ? 'Saved' : 'Save to Favorites'}
+            </Button>
           </div>
           
           <h1 data-testid="range-name" className="tactical-heading text-3xl md:text-4xl mb-2">{range.name}</h1>
