@@ -12,6 +12,7 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import ThemeToggle from "../components/ThemeToggle";
 import RangeMap from "../components/RangeMap";
+import UserMenu from "../components/UserMenu";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
