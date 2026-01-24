@@ -616,6 +616,228 @@ async def add_photo_to_range(range_id: str, photo_url: str = Query(...)):
     
     return {"success": True, "message": "Photo added to range"}
 
+# ==================== REVIEWS ====================
+
+class ReviewCreate(BaseModel):
+    range_id: str
+    reviewer_name: str
+    rating: int = Field(..., ge=1, le=5)
+    comment: str
+    
+class ReviewResponse(BaseModel):
+    id: str
+    range_id: str
+    reviewer_name: str
+    rating: int
+    comment: str
+    created_at: str
+    helpful_count: int = 0
+
+@api_router.post("/reviews")
+async def create_review(review: ReviewCreate):
+    """Submit a review for a range"""
+    # Verify range exists
+    range_doc = await db.ranges.find_one({"id": review.range_id})
+    if not range_doc:
+        raise HTTPException(status_code=404, detail="Range not found")
+    
+    review_doc = {
+        "id": str(uuid.uuid4()),
+        "range_id": review.range_id,
+        "reviewer_name": review.reviewer_name,
+        "rating": review.rating,
+        "comment": review.comment,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "helpful_count": 0
+    }
+    
+    await db.reviews.insert_one(review_doc)
+    
+    # Update range's average rating
+    await update_range_rating(review.range_id)
+    
+    return {"success": True, "review_id": review_doc["id"]}
+
+@api_router.get("/reviews/{range_id}")
+async def get_reviews(range_id: str, limit: int = 20, skip: int = 0):
+    """Get reviews for a specific range"""
+    reviews = await db.reviews.find(
+        {"range_id": range_id},
+        {"_id": 0}
+    ).sort("created_at", -1).skip(skip).limit(limit).to_list(length=limit)
+    
+    total = await db.reviews.count_documents({"range_id": range_id})
+    
+    # Calculate stats
+    pipeline = [
+        {"$match": {"range_id": range_id}},
+        {"$group": {
+            "_id": None,
+            "average_rating": {"$avg": "$rating"},
+            "total_reviews": {"$sum": 1},
+            "rating_5": {"$sum": {"$cond": [{"$eq": ["$rating", 5]}, 1, 0]}},
+            "rating_4": {"$sum": {"$cond": [{"$eq": ["$rating", 4]}, 1, 0]}},
+            "rating_3": {"$sum": {"$cond": [{"$eq": ["$rating", 3]}, 1, 0]}},
+            "rating_2": {"$sum": {"$cond": [{"$eq": ["$rating", 2]}, 1, 0]}},
+            "rating_1": {"$sum": {"$cond": [{"$eq": ["$rating", 1]}, 1, 0]}}
+        }}
+    ]
+    
+    stats_result = await db.reviews.aggregate(pipeline).to_list(length=1)
+    stats = stats_result[0] if stats_result else {
+        "average_rating": 0,
+        "total_reviews": 0,
+        "rating_5": 0, "rating_4": 0, "rating_3": 0, "rating_2": 0, "rating_1": 0
+    }
+    
+    return {
+        "reviews": reviews,
+        "total": total,
+        "stats": {
+            "average_rating": round(stats.get("average_rating", 0), 1),
+            "total_reviews": stats.get("total_reviews", 0),
+            "distribution": {
+                "5": stats.get("rating_5", 0),
+                "4": stats.get("rating_4", 0),
+                "3": stats.get("rating_3", 0),
+                "2": stats.get("rating_2", 0),
+                "1": stats.get("rating_1", 0)
+            }
+        }
+    }
+
+@api_router.post("/reviews/{review_id}/helpful")
+async def mark_review_helpful(review_id: str):
+    """Mark a review as helpful"""
+    result = await db.reviews.update_one(
+        {"id": review_id},
+        {"$inc": {"helpful_count": 1}}
+    )
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Review not found")
+    return {"success": True}
+
+async def update_range_rating(range_id: str):
+    """Update the average rating for a range"""
+    pipeline = [
+        {"$match": {"range_id": range_id}},
+        {"$group": {"_id": None, "avg": {"$avg": "$rating"}, "count": {"$sum": 1}}}
+    ]
+    result = await db.reviews.aggregate(pipeline).to_list(length=1)
+    
+    if result:
+        avg_rating = round(result[0]["avg"], 1)
+        review_count = result[0]["count"]
+        await db.ranges.update_one(
+            {"id": range_id},
+            {"$set": {"user_rating": avg_rating, "user_reviews_count": review_count}}
+        )
+
+# ==================== BULK IMPORT ====================
+
+@api_router.post("/admin/bulk-import")
+async def bulk_import_ranges(file: UploadFile = File(...), token: str = Depends(verify_token)):
+    """Bulk import ranges from CSV or Excel file"""
+    import csv
+    import io
+    
+    # Validate file type
+    allowed_types = ["text/csv", "application/vnd.ms-excel", 
+                     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"]
+    
+    if file.content_type not in allowed_types and not file.filename.endswith(('.csv', '.xlsx', '.xls')):
+        raise HTTPException(status_code=400, detail="Invalid file type. Allowed: CSV, Excel")
+    
+    content = await file.read()
+    
+    # Parse CSV
+    if file.filename.endswith('.csv') or file.content_type == "text/csv":
+        try:
+            decoded = content.decode('utf-8')
+            reader = csv.DictReader(io.StringIO(decoded))
+            rows = list(reader)
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Failed to parse CSV: {str(e)}")
+    else:
+        # For Excel files, we need openpyxl
+        try:
+            import openpyxl
+            from io import BytesIO
+            wb = openpyxl.load_workbook(BytesIO(content))
+            ws = wb.active
+            headers = [cell.value for cell in ws[1]]
+            rows = []
+            for row in ws.iter_rows(min_row=2, values_only=True):
+                if any(row):
+                    rows.append(dict(zip(headers, row)))
+        except ImportError:
+            raise HTTPException(status_code=400, detail="Excel support requires openpyxl. Please use CSV format.")
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Failed to parse Excel: {str(e)}")
+    
+    # Process and insert ranges
+    imported = 0
+    errors = []
+    
+    for idx, row in enumerate(rows):
+        try:
+            # Map CSV columns to our schema
+            name = row.get('name') or row.get('Name') or row.get('range_name')
+            if not name:
+                errors.append(f"Row {idx + 2}: Missing name")
+                continue
+            
+            range_doc = {
+                "id": str(uuid.uuid4()),
+                "name": name,
+                "description": row.get('description') or row.get('Description'),
+                "phone": row.get('phone') or row.get('Phone'),
+                "website": row.get('website') or row.get('Website') or row.get('site'),
+                "email": row.get('email') or row.get('Email'),
+                "location": {
+                    "address": row.get('address') or row.get('Address') or row.get('street') or "",
+                    "city": row.get('city') or row.get('City') or "",
+                    "state": (row.get('state') or row.get('State') or "").upper()[:2],
+                    "zip_code": str(row.get('zip_code') or row.get('zip') or row.get('postal_code') or ""),
+                    "latitude": float(row.get('latitude') or row.get('lat') or 0) if row.get('latitude') or row.get('lat') else None,
+                    "longitude": float(row.get('longitude') or row.get('lon') or row.get('lng') or 0) if row.get('longitude') or row.get('lon') or row.get('lng') else None
+                },
+                "hours": None,
+                "amenities": {
+                    "indoor": str(row.get('indoor', '')).lower() in ['true', '1', 'yes', 'x'],
+                    "outdoor": str(row.get('outdoor', '')).lower() in ['true', '1', 'yes', 'x'],
+                    "handgun": True,
+                    "rifle": True,
+                    "shotgun": str(row.get('shotgun', '')).lower() in ['true', '1', 'yes', 'x'],
+                    "equipment_rentals": str(row.get('rentals', '')).lower() in ['true', '1', 'yes', 'x'],
+                    "instruction": str(row.get('instruction', '')).lower() in ['true', '1', 'yes', 'x'],
+                    "public_access": True
+                },
+                "photos": [],
+                "nssf_member": False,
+                "verified": False,
+                "created_at": datetime.now(timezone.utc).isoformat(),
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }
+            
+            # Filter to DMV area only
+            if range_doc["location"]["state"] not in ["VA", "MD", "DC"]:
+                errors.append(f"Row {idx + 2}: State must be VA, MD, or DC")
+                continue
+            
+            await db.ranges.insert_one(range_doc)
+            imported += 1
+            
+        except Exception as e:
+            errors.append(f"Row {idx + 2}: {str(e)}")
+    
+    return {
+        "success": True,
+        "imported": imported,
+        "total_rows": len(rows),
+        "errors": errors[:10] if errors else []  # Return first 10 errors
+    }
+
 @api_router.get("/stats")
 async def get_stats():
     """Get basic statistics about ranges in the database"""
