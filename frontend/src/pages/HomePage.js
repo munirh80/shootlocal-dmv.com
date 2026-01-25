@@ -437,7 +437,7 @@ const HomePage = () => {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 grid-pattern transition-colors duration-300">
+    <div className="min-h-screen bg-slate-50 dark:bg-gray-800 grid-pattern transition-colors duration-300">
       {/* Header with Video - Full Width */}
       <header className="relative text-white overflow-hidden w-screen -mx-4 sm:-mx-6 lg:-mx-8" style={{ minHeight: '400px' }}>
         {/* YouTube Video Background */}
