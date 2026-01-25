@@ -370,17 +370,17 @@ const HomePage = () => {
   );
 
   const RangeCard = ({ range }) => (
-    <Card data-testid={`range-card-${range.id}`} className="range-card mb-4 cursor-pointer" onClick={() => setSelectedRange(range)}>
+    <Card data-testid={`range-card-${range.id}`} className="range-card mb-4 cursor-pointer dark:bg-gray-700 dark:border-gray-600" onClick={() => setSelectedRange(range)}>
       <CardHeader className="pb-3">
         <div className="flex justify-between items-start">
           <div>
-            <CardTitle className="tactical-heading text-lg">{range.name}</CardTitle>
-            <p className="text-sm text-slate-600 mt-1">
+            <CardTitle className="tactical-heading text-lg dark:text-gray-100">{range.name}</CardTitle>
+            <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">
               <MapPin className="inline w-4 h-4 mr-1" />
               {range.location.address}, {range.location.city}, {range.location.state}
             </p>
             {range.distance && (
-              <p className="text-xs text-slate-500">{range.distance.toFixed(1)} miles away</p>
+              <p className="text-xs text-slate-500 dark:text-gray-400">{range.distance.toFixed(1)} miles away</p>
             )}
           </div>
           {range.nssf_member && (
@@ -392,13 +392,13 @@ const HomePage = () => {
       <CardContent className="pt-0">
         <div className="flex flex-wrap gap-1 mb-3">
           {getAmenityBadges(range.amenities).map((badge, index) => (
-            <Badge key={index} data-testid={`amenity-badge-${range.id}-${index}`} variant="secondary" className="text-xs">
+            <Badge key={index} data-testid={`amenity-badge-${range.id}-${index}`} variant="secondary" className="text-xs dark:bg-gray-600 dark:text-gray-200">
               {badge}
             </Badge>
           ))}
         </div>
         
-        <div className="flex items-center gap-4 text-sm text-slate-600">
+        <div className="flex items-center gap-4 text-sm text-slate-600 dark:text-gray-300">
           {range.phone && (
             <div className="flex items-center">
               <Phone className="w-4 h-4 mr-1" />
@@ -413,7 +413,7 @@ const HomePage = () => {
                 href={range.website} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-blue-600 hover:underline"
+                className="text-blue-600 dark:text-blue-400 hover:underline"
                 onClick={(e) => e.stopPropagation()}
               >
                 Website
@@ -422,7 +422,7 @@ const HomePage = () => {
           )}
         </div>
         
-        <div className="mt-3 pt-3 border-t border-slate-100">
+        <div className="mt-3 pt-3 border-t border-slate-100 dark:border-gray-600">
           <Link 
             to={`/range/${range.id}`} 
             data-testid={`view-details-link-${range.id}`}
