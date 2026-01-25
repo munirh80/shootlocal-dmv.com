@@ -249,7 +249,7 @@ const HomePage = () => {
               onCheckedChange={(checked) => handleFilterChange('shotgun', checked ? true : null)}
               className="tactical-checkbox"
             />
-            <span className="text-sm font-medium">Shotgun</span>
+            <span className="text-sm font-medium dark:text-gray-300">Shotgun</span>
           </label>
           <label className="flex items-center space-x-2">
             <Checkbox 
@@ -258,13 +258,13 @@ const HomePage = () => {
               onCheckedChange={(checked) => handleFilterChange('archery', checked ? true : null)}
               className="tactical-checkbox"
             />
-            <span className="text-sm font-medium">Archery</span>
+            <span className="text-sm font-medium dark:text-gray-300">Archery</span>
           </label>
         </div>
       </div>
 
       <div>
-        <h3 data-testid="services-filter-header" className="tactical-heading text-sm mb-3">Services</h3>
+        <h3 data-testid="services-filter-header" className="tactical-heading text-sm mb-3 dark:text-gray-200">Services</h3>
         <div className="space-y-2">
           <label className="flex items-center space-x-2">
             <Checkbox 
@@ -273,7 +273,7 @@ const HomePage = () => {
               onCheckedChange={(checked) => handleFilterChange('instruction', checked ? true : null)}
               className="tactical-checkbox"
             />
-            <span className="text-sm font-medium">Instruction</span>
+            <span className="text-sm font-medium dark:text-gray-300">Instruction</span>
           </label>
           <label className="flex items-center space-x-2">
             <Checkbox 
@@ -282,7 +282,7 @@ const HomePage = () => {
               onCheckedChange={(checked) => handleFilterChange('equipment_rentals', checked ? true : null)}
               className="tactical-checkbox"
             />
-            <span className="text-sm font-medium">Equipment Rentals</span>
+            <span className="text-sm font-medium dark:text-gray-300">Equipment Rentals</span>
           </label>
           <label className="flex items-center space-x-2">
             <Checkbox 
@@ -291,7 +291,7 @@ const HomePage = () => {
               onCheckedChange={(checked) => handleFilterChange('retail_store', checked ? true : null)}
               className="tactical-checkbox"
             />
-            <span className="text-sm font-medium">Retail Store</span>
+            <span className="text-sm font-medium dark:text-gray-300">Retail Store</span>
           </label>
           <label className="flex items-center space-x-2">
             <Checkbox 
@@ -300,7 +300,7 @@ const HomePage = () => {
               onCheckedChange={(checked) => handleFilterChange('youth_programs', checked ? true : null)}
               className="tactical-checkbox"
             />
-            <span className="text-sm font-medium">Youth Programs</span>
+            <span className="text-sm font-medium dark:text-gray-300">Youth Programs</span>
           </label>
           <label className="flex items-center space-x-2">
             <Checkbox 
@@ -309,13 +309,13 @@ const HomePage = () => {
               onCheckedChange={(checked) => handleFilterChange('womens_programs', checked ? true : null)}
               className="tactical-checkbox"
             />
-            <span className="text-sm font-medium">Women's Programs</span>
+            <span className="text-sm font-medium dark:text-gray-300">Women's Programs</span>
           </label>
         </div>
       </div>
 
       <div>
-        <h3 data-testid="competitions-filter-header" className="tactical-heading text-sm mb-3">Competitions</h3>
+        <h3 data-testid="competitions-filter-header" className="tactical-heading text-sm mb-3 dark:text-gray-200">Competitions</h3>
         <div className="space-y-2">
           <label className="flex items-center space-x-2">
             <Checkbox 
@@ -324,7 +324,7 @@ const HomePage = () => {
               onCheckedChange={(checked) => handleFilterChange('uspsa', checked ? true : null)}
               className="tactical-checkbox"
             />
-            <span className="text-sm font-medium">USPSA</span>
+            <span className="text-sm font-medium dark:text-gray-300">USPSA</span>
           </label>
           <label className="flex items-center space-x-2">
             <Checkbox 
@@ -333,7 +333,7 @@ const HomePage = () => {
               onCheckedChange={(checked) => handleFilterChange('idpa', checked ? true : null)}
               className="tactical-checkbox"
             />
-            <span className="text-sm font-medium">IDPA</span>
+            <span className="text-sm font-medium dark:text-gray-300">IDPA</span>
           </label>
           <label className="flex items-center space-x-2">
             <Checkbox 
@@ -342,7 +342,7 @@ const HomePage = () => {
               onCheckedChange={(checked) => handleFilterChange('precision_pistol', checked ? true : null)}
               className="tactical-checkbox"
             />
-            <span className="text-sm font-medium">Precision Pistol</span>
+            <span className="text-sm font-medium dark:text-gray-300">Precision Pistol</span>
           </label>
           <label className="flex items-center space-x-2">
             <Checkbox 
@@ -351,12 +351,12 @@ const HomePage = () => {
               onCheckedChange={(checked) => handleFilterChange('three_gun', checked ? true : null)}
               className="tactical-checkbox"
             />
-            <span className="text-sm font-medium">3-Gun</span>
+            <span className="text-sm font-medium dark:text-gray-300">3-Gun</span>
           </label>
         </div>
       </div>
 
-      <div className="pt-4 border-t border-slate-200">
+      <div className="pt-4 border-t border-slate-200 dark:border-gray-600">
         <Button 
           data-testid="clear-filters-button"
           variant="outline" 
