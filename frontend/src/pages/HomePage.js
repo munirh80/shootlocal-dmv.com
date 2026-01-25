@@ -198,7 +198,7 @@ const HomePage = () => {
   const FilterPanel = () => (
     <div className="space-y-6">
       <div>
-        <h3 data-testid="range-type-filter-header" className="tactical-heading text-sm mb-3">Range Type</h3>
+        <h3 data-testid="range-type-filter-header" className="tactical-heading text-sm mb-3 dark:text-gray-200">Range Type</h3>
         <div className="space-y-2">
           <label className="flex items-center space-x-2">
             <Checkbox 
@@ -207,7 +207,7 @@ const HomePage = () => {
               onCheckedChange={(checked) => handleFilterChange('indoor', checked ? true : null)}
               className="tactical-checkbox"
             />
-            <span className="text-sm font-medium">Indoor</span>
+            <span className="text-sm font-medium dark:text-gray-300">Indoor</span>
           </label>
           <label className="flex items-center space-x-2">
             <Checkbox 
@@ -216,13 +216,13 @@ const HomePage = () => {
               onCheckedChange={(checked) => handleFilterChange('outdoor', checked ? true : null)}
               className="tactical-checkbox"
             />
-            <span className="text-sm font-medium">Outdoor</span>
+            <span className="text-sm font-medium dark:text-gray-300">Outdoor</span>
           </label>
         </div>
       </div>
 
       <div>
-        <h3 data-testid="firearms-filter-header" className="tactical-heading text-sm mb-3">Firearms</h3>
+        <h3 data-testid="firearms-filter-header" className="tactical-heading text-sm mb-3 dark:text-gray-200">Firearms</h3>
         <div className="space-y-2">
           <label className="flex items-center space-x-2">
             <Checkbox 
@@ -231,7 +231,7 @@ const HomePage = () => {
               onCheckedChange={(checked) => handleFilterChange('handgun', checked ? true : null)}
               className="tactical-checkbox"
             />
-            <span className="text-sm font-medium">Handgun</span>
+            <span className="text-sm font-medium dark:text-gray-300">Handgun</span>
           </label>
           <label className="flex items-center space-x-2">
             <Checkbox 
@@ -240,7 +240,7 @@ const HomePage = () => {
               onCheckedChange={(checked) => handleFilterChange('rifle', checked ? true : null)}
               className="tactical-checkbox"
             />
-            <span className="text-sm font-medium">Rifle</span>
+            <span className="text-sm font-medium dark:text-gray-300">Rifle</span>
           </label>
           <label className="flex items-center space-x-2">
             <Checkbox 
