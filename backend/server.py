@@ -755,6 +755,188 @@ async def google_oauth_callback(request: GoogleCallbackRequest):
         logger.error(f"Google OAuth error: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to authenticate with Google")
 
+# ==================== PASSWORD RESET ====================
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+
+def generate_reset_token():
+    """Generate a secure password reset token"""
+    return secrets.token_urlsafe(32)
+
+@api_router.post("/auth/forgot-password")
+async def forgot_password(request: ForgotPasswordRequest):
+    """Request a password reset email"""
+    email = request.email.lower()
+    user = await db.users.find_one({"email": email}, {"_id": 0})
+    
+    # Always return success to prevent email enumeration
+    if not user:
+        return {"success": True, "message": "If an account exists with this email, a reset link has been sent."}
+    
+    # Check if user is Google OAuth user
+    if user.get("auth_provider") == "google":
+        return {"success": True, "message": "If an account exists with this email, a reset link has been sent."}
+    
+    # Generate reset token
+    reset_token = generate_reset_token()
+    expires_at = datetime.now(timezone.utc) + timedelta(hours=1)
+    
+    # Store reset token in database
+    await db.password_resets.delete_many({"email": email})  # Remove any existing tokens
+    await db.password_resets.insert_one({
+        "email": email,
+        "token": reset_token,
+        "expires_at": expires_at.isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    
+    # Send reset email
+    site_url = os.environ.get('SITE_URL', 'https://dmvgunrange.com')
+    reset_link = f"{site_url}/reset-password?token={reset_token}"
+    
+    email_html = f"""
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #f97316;">Password Reset Request</h2>
+        <p>Hi {user.get('name', 'there')},</p>
+        <p>We received a request to reset your password for your DMV Gun Range account.</p>
+        <p>Click the button below to reset your password. This link will expire in 1 hour.</p>
+        <p style="margin: 30px 0;">
+            <a href="{reset_link}" style="background-color: #f97316; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                Reset Password
+            </a>
+        </p>
+        <p>If you didn't request this, you can safely ignore this email.</p>
+        <p style="color: #666; font-size: 12px; margin-top: 30px;">
+            This is an automated message from DMV Gun Range.
+        </p>
+    </div>
+    """
+    
+    await send_notification_email(
+        subject="Reset Your Password - DMV Gun Range",
+        html_content=email_html,
+        to_email=email
+    )
+    
+    return {"success": True, "message": "If an account exists with this email, a reset link has been sent."}
+
+@api_router.post("/auth/reset-password")
+async def reset_password(request: ResetPasswordRequest):
+    """Reset password using token"""
+    # Find the reset token
+    reset_doc = await db.password_resets.find_one({"token": request.token}, {"_id": 0})
+    
+    if not reset_doc:
+        raise HTTPException(status_code=400, detail="Invalid or expired reset token")
+    
+    # Check if token is expired
+    expires_at = datetime.fromisoformat(reset_doc["expires_at"])
+    if expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=timezone.utc)
+    
+    if expires_at < datetime.now(timezone.utc):
+        await db.password_resets.delete_one({"token": request.token})
+        raise HTTPException(status_code=400, detail="Reset token has expired")
+    
+    # Validate new password
+    if len(request.new_password) < 6:
+        raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+    
+    # Update user password
+    email = reset_doc["email"]
+    await db.users.update_one(
+        {"email": email},
+        {"$set": {
+            "password_hash": hash_password(request.new_password),
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }}
+    )
+    
+    # Delete the used token
+    await db.password_resets.delete_one({"token": request.token})
+    
+    return {"success": True, "message": "Password has been reset successfully"}
+
+@api_router.post("/auth/change-password")
+async def change_password(request: ChangePasswordRequest, user_data: dict = Depends(verify_user_token)):
+    """Change password for logged-in user"""
+    user = await db.users.find_one({"id": user_data["user_id"]}, {"_id": 0})
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Check if user is Google OAuth user
+    if user.get("auth_provider") == "google":
+        raise HTTPException(status_code=400, detail="Cannot change password for Google accounts")
+    
+    # Verify current password
+    if not user.get("password_hash") or not verify_password(request.current_password, user["password_hash"]):
+        raise HTTPException(status_code=400, detail="Current password is incorrect")
+    
+    # Validate new password
+    if len(request.new_password) < 6:
+        raise HTTPException(status_code=400, detail="New password must be at least 6 characters")
+    
+    # Update password
+    await db.users.update_one(
+        {"id": user_data["user_id"]},
+        {"$set": {
+            "password_hash": hash_password(request.new_password),
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }}
+    )
+    
+    return {"success": True, "message": "Password changed successfully"}
+
+# ==================== USER PROFILE ====================
+
+class UpdateProfileRequest(BaseModel):
+    name: str
+
+@api_router.put("/auth/profile")
+async def update_profile(request: UpdateProfileRequest, user_data: dict = Depends(verify_user_token)):
+    """Update user profile"""
+    if not request.name or len(request.name.strip()) < 1:
+        raise HTTPException(status_code=400, detail="Name is required")
+    
+    await db.users.update_one(
+        {"id": user_data["user_id"]},
+        {"$set": {
+            "name": request.name.strip(),
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }}
+    )
+    
+    # Get updated user
+    user = await db.users.find_one({"id": user_data["user_id"]}, {"_id": 0, "password_hash": 0})
+    
+    return {"success": True, "user": user}
+
+@api_router.delete("/auth/account")
+async def delete_account(user_data: dict = Depends(verify_user_token)):
+    """Delete user account"""
+    user_id = user_data["user_id"]
+    
+    # Delete user's reviews
+    await db.reviews.delete_many({"user_id": user_id})
+    
+    # Delete user
+    result = await db.users.delete_one({"id": user_id})
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {"success": True, "message": "Account deleted successfully"}
+
 # ==================== FAVORITES ====================
 
 @api_router.post("/favorites/{range_id}")
