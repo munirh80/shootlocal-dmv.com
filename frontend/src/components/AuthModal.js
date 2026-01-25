@@ -230,6 +230,16 @@ const AuthModal = ({ isOpen, onClose }) => {
                 </button>
               </div>
               {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
+              {mode === 'login' && (
+                <button
+                  type="button"
+                  onClick={onForgotPassword}
+                  className="text-sm text-orange-500 hover:text-orange-600 mt-1"
+                  data-testid="forgot-password-link"
+                >
+                  Forgot password?
+                </button>
+              )}
             </div>
 
             {mode === 'register' && (
