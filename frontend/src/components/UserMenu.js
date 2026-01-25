@@ -1,14 +1,26 @@
 import React, { useState } from 'react';
-import { User, Heart, LogOut, ChevronDown } from 'lucide-react';
+import { User, Heart, LogOut, ChevronDown, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from './ui/button';
 import { useAuth } from '../contexts/AuthContext';
 import AuthModal from './AuthModal';
+import ForgotPasswordModal from './ForgotPasswordModal';
 
 const UserMenu = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+
+  const handleForgotPassword = () => {
+    setShowAuthModal(false);
+    setShowForgotPassword(true);
+  };
+
+  const handleBackToLogin = () => {
+    setShowForgotPassword(false);
+    setShowAuthModal(true);
+  };
 
   if (!isAuthenticated) {
     return (
@@ -24,7 +36,13 @@ const UserMenu = () => {
         </Button>
         <AuthModal 
           isOpen={showAuthModal} 
-          onClose={() => setShowAuthModal(false)} 
+          onClose={() => setShowAuthModal(false)}
+          onForgotPassword={handleForgotPassword}
+        />
+        <ForgotPasswordModal
+          isOpen={showForgotPassword}
+          onClose={() => setShowForgotPassword(false)}
+          onBackToLogin={handleBackToLogin}
         />
       </>
     );
@@ -73,6 +91,16 @@ const UserMenu = () => {
 
             {/* Menu items */}
             <div className="py-2">
+              <Link
+                to="/profile"
+                onClick={() => setShowDropdown(false)}
+                className="flex items-center gap-3 px-4 py-2 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                data-testid="profile-link"
+              >
+                <Settings className="w-4 h-4" />
+                My Profile
+              </Link>
+              
               <Link
                 to="/favorites"
                 onClick={() => setShowDropdown(false)}
