@@ -12,6 +12,8 @@ import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import AuthCallback from "./pages/AuthCallback";
 import FavoritesPage from "./pages/FavoritesPage";
+import ProfilePage from "./pages/ProfilePage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 import "./App.css";
 
 // Router component that handles session_id detection
@@ -33,6 +35,8 @@ function AppRouter() {
       <Route path="/admin/dashboard" element={<AdminDashboard />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
       <Route path="/favorites" element={<FavoritesPage />} />
+      <Route path="/profile" element={<ProfilePage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
     </Routes>
   );
 }
