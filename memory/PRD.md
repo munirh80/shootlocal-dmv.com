@@ -101,6 +101,11 @@ Build a shooting range directory for all gun ranges in the DMV area (DC, Marylan
 | `/api/auth/login` | POST | Login user (email/password) |
 | `/api/auth/me` | GET | Get current user info (protected) |
 | `/api/auth/google/callback` | POST | Process Google OAuth callback |
+| `/api/auth/forgot-password` | POST | Request password reset email |
+| `/api/auth/reset-password` | POST | Reset password with token |
+| `/api/auth/change-password` | POST | Change password (protected) |
+| `/api/auth/profile` | PUT | Update user profile (protected) |
+| `/api/auth/account` | DELETE | Delete user account (protected) |
 
 ### Favorites Endpoints (Protected)
 | Endpoint | Method | Description |
