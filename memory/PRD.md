@@ -227,11 +227,13 @@ Build a shooting range directory for all gun ranges in the DMV area (DC, Marylan
 - [x] Social sharing buttons
 - [x] User accounts and favorites (email/password + Google OAuth)
 - [x] Email notifications for range submissions
+- [x] Password reset / forgot password
+- [x] User profile management (edit name, change password, delete account)
 
 ### P1 - Next Up
 - [ ] Print-friendly range details
-- [ ] Password reset / forgot password
-- [ ] User profile management (edit name, delete account)
+- [ ] Email verification on registration
+- [ ] "Remember me" option on login
 
 ### P2 - Future
 - [ ] Analytics dashboard
@@ -239,13 +241,16 @@ Build a shooting range directory for all gun ranges in the DMV area (DC, Marylan
 - [ ] Range comparison feature
 - [ ] Booking integration
 - [ ] Push notifications for favorite range updates
+- [ ] Range alerts (notify when new ranges added in area)
 
 ## Test Coverage
-- Backend: 100% - All auth and favorites tests passing
+- Backend: 100% - All auth, favorites, password reset, and profile tests passing
 - Frontend: All features verified
 - Test files: 
   - `/app/backend/tests/test_user_auth.py`
+  - `/app/backend/tests/test_password_profile.py`
   - `/app/test_reports/iteration_5.json`
+  - `/app/test_reports/iteration_6.json`
 
 ## Configuration Files
 - `/app/backend/.env` - Backend environment variables
