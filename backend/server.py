@@ -579,7 +579,7 @@ async def submit_range(submission: RangeSubmission):
             </tr>
         </table>
         <p style="margin-top: 20px;">
-            <a href="https://dmvgunrange.com/admin" style="background-color: #f97316; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+            <a href="{os.environ.get('SITE_URL', '')}/admin" style="background-color: #f97316; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
                 Review Submission
             </a>
         </p>
