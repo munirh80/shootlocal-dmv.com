@@ -21,6 +21,12 @@ Build a shooting range directory for all gun ranges in the DMV area (DC, Marylan
 8. ✅ Interactive map view with all ranges
 9. ✅ Range submission form for owners
 10. ✅ Admin dashboard for reviewing submissions
+11. ✅ User reviews and ratings system
+12. ✅ Bulk data import (CSV/Excel)
+13. ✅ SEO optimization (meta tags, sitemap)
+14. ✅ Social sharing buttons
+15. ✅ User accounts and favorites (email/password + Google OAuth)
+16. ✅ Email notifications for new submissions
 
 ## What's Been Implemented (January 2026)
 
@@ -31,18 +37,26 @@ Build a shooting range directory for all gun ranges in the DMV area (DC, Marylan
 - Range cards displaying key info (name, address, phone, website, amenities)
 - Range detail page with comprehensive information
 - **Submit Range page** - Full form for range owners to add their ranges
-- **Admin Dashboard** - Review and approve/reject submitted ranges
+- **Admin Dashboard** - Review and approve/reject submitted ranges, bulk import
 - YouTube video header (full-width, responsive)
 - Dark/Light mode toggle with localStorage persistence
 - Responsive design for mobile and desktop
+- **User Authentication** - Login/Register modal with email/password and Google OAuth
+- **User Menu** - Dropdown showing user name, My Favorites link, logout
+- **Favorites Page** - View and manage saved ranges
+- **Save to Favorites button** - On range detail pages
 
 ### Backend
 - FastAPI server with RESTful API
 - MongoDB database integration
-- Range submission endpoint (POST /api/ranges/submit)
-- **Admin endpoints** for submission management
-- Endpoints: `/api/ranges`, `/api/ranges/{id}`, `/api/stats`, `/api/states`, `/api/admin/submissions`
-- Filtering by amenities, range type, and location
+- Range submission endpoint with email notification
+- Admin endpoints for submission management
+- User authentication (JWT-based email/password + Google OAuth)
+- Favorites management endpoints
+- SEO endpoints (sitemap.xml, robots.txt)
+- Photo upload and management
+- Reviews and ratings system
+- Bulk import from CSV/Excel
 
 ### Data
 - **78 real shooting ranges** imported from user's spreadsheet
@@ -52,13 +66,17 @@ Build a shooting range directory for all gun ranges in the DMV area (DC, Marylan
 - **All ranges geocoded** with latitude/longitude coordinates
 
 ## Tech Stack
-- **Frontend**: React, React Router, Tailwind CSS, Shadcn/UI, react-leaflet, Leaflet
-- **Backend**: FastAPI, Motor (async MongoDB driver)
+- **Frontend**: React, React Router, Tailwind CSS, Shadcn/UI, react-leaflet, Leaflet, react-helmet-async
+- **Backend**: FastAPI, Motor (async MongoDB driver), python-jose (JWT), passlib (password hashing), httpx
 - **Database**: MongoDB
-- **State Management**: React Context (for theme)
+- **State Management**: React Context (for theme and auth)
 - **Maps**: OpenStreetMap tiles via Leaflet
+- **Email**: Resend
+- **Auth**: JWT + Emergent Google OAuth
 
 ## API Endpoints
+
+### Public Endpoints
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/api/ranges` | GET | List ranges with optional filters |
@@ -66,20 +84,49 @@ Build a shooting range directory for all gun ranges in the DMV area (DC, Marylan
 | `/api/ranges/submit` | POST | Submit a new range for review |
 | `/api/stats` | GET | Get range statistics |
 | `/api/states` | GET | Get list of states (VA, MD, DC) |
-| `/api/admin/login` | POST | Authenticate admin (returns token) |
-| `/api/admin/logout` | POST | Logout admin (protected) |
-| `/api/admin/submissions` | GET | List pending submissions (protected) |
-| `/api/admin/submissions/{id}/approve` | POST | Approve submission (protected) |
-| `/api/admin/submissions/{id}/reject` | POST | Reject submission (protected) |
+| `/api/reviews` | POST | Submit a review |
+| `/api/reviews/{range_id}` | GET | Get reviews for a range |
+| `/api/sitemap.xml` | GET | XML sitemap for SEO |
+| `/api/robots.txt` | GET | Robots.txt for SEO |
+
+### Auth Endpoints
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/auth/register` | POST | Register new user (email/password) |
+| `/api/auth/login` | POST | Login user (email/password) |
+| `/api/auth/me` | GET | Get current user info (protected) |
+| `/api/auth/google/callback` | POST | Process Google OAuth callback |
+
+### Favorites Endpoints (Protected)
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/favorites` | GET | Get user's favorite ranges |
+| `/api/favorites/{range_id}` | POST | Add range to favorites |
+| `/api/favorites/{range_id}` | DELETE | Remove range from favorites |
+| `/api/favorites/check/{range_id}` | GET | Check if range is favorited |
+
+### Admin Endpoints (Protected)
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/admin/login` | POST | Authenticate admin |
+| `/api/admin/logout` | POST | Logout admin |
+| `/api/admin/submissions` | GET | List pending submissions |
+| `/api/admin/submissions/{id}/approve` | POST | Approve submission |
+| `/api/admin/submissions/{id}/reject` | POST | Reject submission |
+| `/api/admin/change-password` | POST | Change admin password |
+| `/api/admin/bulk-import` | POST | Import ranges from CSV/Excel |
 
 ## Database Schema
+
+### ranges collection
 ```javascript
-// ranges collection
 {
   id: string,
   name: string,
+  description: string,
   phone: string,
   website: string,
+  email: string,
   location: {
     address: string,
     city: string,
@@ -90,14 +137,44 @@ Build a shooting range directory for all gun ranges in the DMV area (DC, Marylan
   },
   hours: { monday: string, ... },
   amenities: { indoor: boolean, outdoor: boolean, ... },
+  pricing: { day_pass: number, ... },
+  photos: [string],
+  google_rating: number,
+  google_reviews: number,
+  user_rating: number,
+  user_reviews_count: number,
   verified: boolean,
-  nssf_member: boolean
+  nssf_member: boolean,
+  created_at: string,
+  updated_at: string
 }
+```
 
-// range_submissions collection (for review)
+### users collection
+```javascript
 {
-  // Same schema as ranges, plus:
-  pending_review: boolean
+  id: string,
+  email: string,
+  password_hash: string,  // null for Google OAuth users
+  name: string,
+  picture: string,  // from Google OAuth
+  auth_provider: string,  // "google" or null
+  favorites: [string],  // array of range IDs
+  created_at: string,
+  updated_at: string
+}
+```
+
+### reviews collection
+```javascript
+{
+  id: string,
+  range_id: string,
+  reviewer_name: string,
+  rating: number,  // 1-5
+  comment: string,
+  helpful_count: number,
+  created_at: string
 }
 ```
 
@@ -108,12 +185,13 @@ Build a shooting range directory for all gun ranges in the DMV area (DC, Marylan
 | `/range/:id` | RangeDetailPage | Individual range details |
 | `/submit` | SubmitRangePage | Form to submit a new range |
 | `/admin` | AdminLogin | Admin login page |
-| `/admin/dashboard` | AdminDashboard | Admin panel for reviewing submissions |
+| `/admin/dashboard` | AdminDashboard | Admin panel |
+| `/auth/callback` | AuthCallback | Google OAuth callback handler |
+| `/favorites` | FavoritesPage | User's saved ranges |
 
-## Admin Authentication
-- Password: `dmvgunrange2024` (stored in backend/.env as ADMIN_PASSWORD)
-- Token-based authentication using session storage
-- Protected endpoints require Bearer token in Authorization header
+## Credentials
+- **Admin Password**: `dmvgunrange2024` (stored in backend/.env)
+- **Test User**: `testuser@example.com` / `testpass123`
 
 ## Prioritized Backlog
 
@@ -133,23 +211,30 @@ Build a shooting range directory for all gun ranges in the DMV area (DC, Marylan
 - [x] Change admin password feature
 - [x] User reviews and ratings system
 - [x] Bulk data import (CSV/Excel)
-- [x] SEO optimization (meta tags, structured data, sitemap)
-- [x] Social sharing buttons (Facebook, Twitter, WhatsApp, Copy Link)
+- [x] SEO optimization (meta tags, sitemap)
+- [x] Social sharing buttons
+- [x] User accounts and favorites (email/password + Google OAuth)
+- [x] Email notifications for range submissions
 
 ### P1 - Next Up
-- [ ] Email notifications for range submissions
-- [ ] User accounts and favorites
 - [ ] Print-friendly range details
+- [ ] Password reset / forgot password
+- [ ] User profile management (edit name, delete account)
 
 ### P2 - Future
-- [ ] Bulk import system (CSV/Excel upload)
-- [ ] User reviews and ratings
-- [ ] User accounts and favorites
-- [ ] SEO optimization
 - [ ] Analytics dashboard
 - [ ] Mobile app (React Native)
+- [ ] Range comparison feature
+- [ ] Booking integration
+- [ ] Push notifications for favorite range updates
 
 ## Test Coverage
-- Backend: 100% (26/26 tests passed)
+- Backend: 100% - All auth and favorites tests passing
 - Frontend: All features verified
-- Test files: `/app/backend/tests/test_dmv_ranges.py`
+- Test files: 
+  - `/app/backend/tests/test_user_auth.py`
+  - `/app/test_reports/iteration_5.json`
+
+## Configuration Files
+- `/app/backend/.env` - Backend environment variables
+- `/app/frontend/.env` - Frontend environment variables
