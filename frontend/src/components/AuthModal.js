@@ -6,7 +6,7 @@ import { Label } from './ui/label';
 import { toast } from 'sonner';
 import { useAuth } from '../contexts/AuthContext';
 
-const AuthModal = ({ isOpen, onClose }) => {
+const AuthModal = ({ isOpen, onClose, onForgotPassword }) => {
   const [mode, setMode] = useState('login'); // 'login' or 'register'
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
