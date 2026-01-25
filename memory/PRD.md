@@ -198,6 +198,8 @@ Build a shooting range directory for all gun ranges in the DMV area (DC, Marylan
 | `/admin/dashboard` | AdminDashboard | Admin panel |
 | `/auth/callback` | AuthCallback | Google OAuth callback handler |
 | `/favorites` | FavoritesPage | User's saved ranges |
+| `/profile` | ProfilePage | User profile management |
+| `/reset-password` | ResetPasswordPage | Password reset with token |
 
 ## Credentials
 - **Admin Password**: `dmvgunrange2024` (stored in backend/.env)
