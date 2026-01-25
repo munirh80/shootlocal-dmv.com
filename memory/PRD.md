@@ -27,6 +27,8 @@ Build a shooting range directory for all gun ranges in the DMV area (DC, Marylan
 14. ✅ Social sharing buttons
 15. ✅ User accounts and favorites (email/password + Google OAuth)
 16. ✅ Email notifications for new submissions
+17. ✅ Password reset / forgot password
+18. ✅ User profile management (change password, delete account)
 
 ## What's Been Implemented (January 2026)
 
@@ -42,9 +44,12 @@ Build a shooting range directory for all gun ranges in the DMV area (DC, Marylan
 - Dark/Light mode toggle with localStorage persistence
 - Responsive design for mobile and desktop
 - **User Authentication** - Login/Register modal with email/password and Google OAuth
-- **User Menu** - Dropdown showing user name, My Favorites link, logout
+- **User Menu** - Dropdown showing user name, Profile, My Favorites, logout
 - **Favorites Page** - View and manage saved ranges
 - **Save to Favorites button** - On range detail pages
+- **Forgot Password** - Modal to request password reset email
+- **Reset Password Page** - Enter new password with reset token
+- **Profile Page** - View account type, edit name, change password, delete account
 
 ### Backend
 - FastAPI server with RESTful API
