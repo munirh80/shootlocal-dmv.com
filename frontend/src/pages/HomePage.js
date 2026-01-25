@@ -577,15 +577,15 @@ const HomePage = () => {
         <div className="container mx-auto px-4 h-full">
           <div className="flex gap-6 h-full">
             {/* Desktop Filter Panel */}
-            <div className="hidden lg:block w-80 filter-panel p-6 h-fit sticky top-6">
-              <h2 data-testid="desktop-filter-header" className="tactical-heading text-lg mb-6">Filter Ranges</h2>
+            <div className="hidden lg:block w-80 filter-panel p-6 h-fit sticky top-6 dark:bg-gray-700 dark:border-gray-600">
+              <h2 data-testid="desktop-filter-header" className="tactical-heading text-lg mb-6 dark:text-gray-100">Filter Ranges</h2>
               <FilterPanel />
             </div>
             
             {/* Results */}
             <div className="flex-1">
               <div className="mb-4 flex justify-between items-center">
-                <h2 data-testid="results-header" className="tactical-heading text-xl">
+                <h2 data-testid="results-header" className="tactical-heading text-xl dark:text-gray-100">
                   {ranges.length > 0 ? `${ranges.length} Ranges Found` : 'No Ranges Found'}
                 </h2>
                 <div className="flex items-center gap-2">
