@@ -16,7 +16,7 @@ Build a shooting range directory for all gun ranges in the DMV area (DC, Marylan
 3. ✅ Advanced filtering (indoor/outdoor, firearms types, services, competitions)
 4. ✅ Detailed range pages with hours, contact info, amenities
 5. ✅ Full-width video header (YouTube embed)
-6. ✅ Dark/Light mode theme toggle
+6. ✅ Dark/Light mode theme toggle (Navy/Dark Blue theme)
 7. ✅ Real data imported from user's spreadsheet
 8. ✅ Interactive map view with all ranges
 9. ✅ Range submission form for owners
@@ -29,6 +29,7 @@ Build a shooting range directory for all gun ranges in the DMV area (DC, Marylan
 16. ✅ Email notifications for new submissions
 17. ✅ Password reset / forgot password
 18. ✅ User profile management (change password, delete account)
+19. ✅ Performance optimizations (lazy loading, debounced search, API caching, code splitting)
 
 ## What's Been Implemented (January 2026)
 
@@ -41,7 +42,7 @@ Build a shooting range directory for all gun ranges in the DMV area (DC, Marylan
 - **Submit Range page** - Full form for range owners to add their ranges
 - **Admin Dashboard** - Review and approve/reject submitted ranges, bulk import
 - YouTube video header (full-width, responsive)
-- Dark/Light mode toggle with localStorage persistence
+- **Dark/Light mode toggle** with Navy/Dark Blue theme and localStorage persistence (no FOUC)
 - Responsive design for mobile and desktop
 - **User Authentication** - Login/Register modal with email/password and Google OAuth
 - **User Menu** - Dropdown showing user name, Profile, My Favorites, logout
@@ -50,6 +51,12 @@ Build a shooting range directory for all gun ranges in the DMV area (DC, Marylan
 - **Forgot Password** - Modal to request password reset email
 - **Reset Password Page** - Enter new password with reset token
 - **Profile Page** - View account type, edit name, change password, delete account
+- **Performance Optimizations:**
+  - Code splitting with React.lazy for all page components
+  - Debounced search (400ms) to reduce API calls
+  - API caching with 5-minute TTL
+  - Lazy loading images with intersection observer
+  - Suspense fallback loading states
 
 ### Backend
 - FastAPI server with RESTful API
@@ -249,9 +256,20 @@ Build a shooting range directory for all gun ranges in the DMV area (DC, Marylan
 - Test files: 
   - `/app/backend/tests/test_user_auth.py`
   - `/app/backend/tests/test_password_profile.py`
-  - `/app/test_reports/iteration_5.json`
-  - `/app/test_reports/iteration_6.json`
+  - `/app/test_reports/iteration_5.json` (Auth/Favorites tests)
+  - `/app/test_reports/iteration_6.json` (Profile/Password Reset tests)
+  - `/app/test_reports/iteration_7.json` (Dark Mode Navy Theme & Performance tests - ALL PASS)
+
+## Performance Optimizations (Added December 2025)
+- **Code Splitting**: React.lazy for all page components with Suspense fallback
+- **Debounced Search**: 400ms delay before API calls (reduces server load)
+- **API Caching**: 5-minute TTL cache for ranges, stats, and range details
+- **Lazy Loading Images**: IntersectionObserver-based image loading
+- **ThemeContext Optimization**: Synchronous theme initialization to prevent FOUC
 
 ## Configuration Files
 - `/app/backend/.env` - Backend environment variables
 - `/app/frontend/.env` - Frontend environment variables
+- `/app/frontend/src/services/api.js` - Cached API service
+- `/app/frontend/src/hooks/useDebounce.js` - Debounce hook
+- `/app/frontend/src/components/LazyImage.js` - Lazy loading image component

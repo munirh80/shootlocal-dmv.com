@@ -10,21 +10,22 @@ export const useTheme = () => {
   return context;
 };
 
-export const ThemeProvider = ({ children }) => {
-  const [isDark, setIsDark] = useState(false);
-
-  useEffect(() => {
-    // Check for saved theme preference or default to light mode
+// Initialize theme synchronously to avoid FOUC
+const getInitialTheme = () => {
+  if (typeof window !== 'undefined') {
     const savedTheme = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
     if (savedTheme) {
-      setIsDark(savedTheme === 'dark');
-    } else {
-      setIsDark(prefersDark);
+      return savedTheme === 'dark';
     }
-  }, []);
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+  return false;
+};
 
+export const ThemeProvider = ({ children }) => {
+  const [isDark, setIsDark] = useState(getInitialTheme);
+
+  // Apply theme class on initial mount (synchronously via state initializer)
   useEffect(() => {
     // Apply theme to document
     if (isDark) {
