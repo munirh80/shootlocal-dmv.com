@@ -8,14 +8,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "../components/ui/sheet";
 import { Checkbox } from "../components/ui/checkbox";
 import { toast } from "sonner";
-import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import ThemeToggle from "../components/ThemeToggle";
 import RangeMap from "../components/RangeMap";
 import UserMenu from "../components/UserMenu";
-
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+import { useDebounce } from "../hooks/useDebounce";
+import { fetchRanges, fetchStats } from "../services/api";
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -27,6 +25,9 @@ const HomePage = () => {
   const [stats, setStats] = useState(null);
   const [selectedRange, setSelectedRange] = useState(null);
   const [viewMode, setViewMode] = useState("list"); // "list" or "map"
+  
+  // Debounced search query for performance
+  const debouncedSearchQuery = useDebounce(searchQuery, 400);
   
   // Filter states
   const [filters, setFilters] = useState({
@@ -55,10 +56,17 @@ const HomePage = () => {
     loadInitialRanges();
   }, []);
 
+  // Auto-search when debounced query changes
+  useEffect(() => {
+    if (debouncedSearchQuery !== "") {
+      searchRanges(debouncedSearchQuery, userLocation, filters);
+    }
+  }, [debouncedSearchQuery]);
+
   const loadStats = async () => {
     try {
-      const response = await axios.get(`${API}/stats`);
-      setStats(response.data);
+      const data = await fetchStats();
+      setStats(data);
     } catch (error) {
       console.error("Error loading stats:", error);
     }
@@ -67,8 +75,8 @@ const HomePage = () => {
   const loadInitialRanges = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API}/ranges?limit=50`);
-      setRanges(response.data);
+      const data = await fetchRanges({ limit: 50 });
+      setRanges(data);
     } catch (error) {
       console.error("Error loading ranges:", error);
       toast.error("Failed to load ranges");
@@ -104,39 +112,39 @@ const HomePage = () => {
     try {
       setLoading(true);
       
-      let params = new URLSearchParams();
+      const params = {};
       
       // Add location parameters
       if (location) {
-        params.append("latitude", location.latitude);
-        params.append("longitude", location.longitude);
-        params.append("radius", radius);
+        params.latitude = location.latitude;
+        params.longitude = location.longitude;
+        params.radius = radius;
       }
       
       // Add search query parameters
       if (query) {
         // Check if it's a ZIP code or city
         if (/^\d{5}$/.test(query)) {
-          params.append("zip_code", query);
+          params.zip_code = query;
         } else {
-          params.append("city", query);
+          params.city = query;
         }
       }
       
       // Add filters
       Object.entries(searchFilters).forEach(([key, value]) => {
         if (value !== null) {
-          params.append(key, value);
+          params[key] = value;
         }
       });
       
-      const response = await axios.get(`${API}/ranges?${params.toString()}`);
-      setRanges(response.data);
+      const data = await fetchRanges(params);
+      setRanges(data);
       
-      if (response.data.length === 0) {
+      if (data.length === 0) {
         toast.info("No ranges found matching your criteria. Try adjusting your search or filters.");
       } else {
-        toast.success(`Found ${response.data.length} ranges`);
+        toast.success(`Found ${data.length} ranges`);
       }
     } catch (error) {
       console.error("Error searching ranges:", error);
@@ -198,7 +206,7 @@ const HomePage = () => {
   const FilterPanel = () => (
     <div className="space-y-6">
       <div>
-        <h3 data-testid="range-type-filter-header" className="tactical-heading text-sm mb-3 dark:text-gray-200">Range Type</h3>
+        <h3 data-testid="range-type-filter-header" className="tactical-heading text-sm mb-3 dark:text-slate-200">Range Type</h3>
         <div className="space-y-2">
           <label className="flex items-center space-x-2">
             <Checkbox 
@@ -207,7 +215,7 @@ const HomePage = () => {
               onCheckedChange={(checked) => handleFilterChange('indoor', checked ? true : null)}
               className="tactical-checkbox"
             />
-            <span className="text-sm font-medium dark:text-gray-300">Indoor</span>
+            <span className="text-sm font-medium dark:text-slate-300">Indoor</span>
           </label>
           <label className="flex items-center space-x-2">
             <Checkbox 
@@ -216,13 +224,13 @@ const HomePage = () => {
               onCheckedChange={(checked) => handleFilterChange('outdoor', checked ? true : null)}
               className="tactical-checkbox"
             />
-            <span className="text-sm font-medium dark:text-gray-300">Outdoor</span>
+            <span className="text-sm font-medium dark:text-slate-300">Outdoor</span>
           </label>
         </div>
       </div>
 
       <div>
-        <h3 data-testid="firearms-filter-header" className="tactical-heading text-sm mb-3 dark:text-gray-200">Firearms</h3>
+        <h3 data-testid="firearms-filter-header" className="tactical-heading text-sm mb-3 dark:text-slate-200">Firearms</h3>
         <div className="space-y-2">
           <label className="flex items-center space-x-2">
             <Checkbox 
@@ -231,7 +239,7 @@ const HomePage = () => {
               onCheckedChange={(checked) => handleFilterChange('handgun', checked ? true : null)}
               className="tactical-checkbox"
             />
-            <span className="text-sm font-medium dark:text-gray-300">Handgun</span>
+            <span className="text-sm font-medium dark:text-slate-300">Handgun</span>
           </label>
           <label className="flex items-center space-x-2">
             <Checkbox 
@@ -240,7 +248,7 @@ const HomePage = () => {
               onCheckedChange={(checked) => handleFilterChange('rifle', checked ? true : null)}
               className="tactical-checkbox"
             />
-            <span className="text-sm font-medium dark:text-gray-300">Rifle</span>
+            <span className="text-sm font-medium dark:text-slate-300">Rifle</span>
           </label>
           <label className="flex items-center space-x-2">
             <Checkbox 
@@ -249,7 +257,7 @@ const HomePage = () => {
               onCheckedChange={(checked) => handleFilterChange('shotgun', checked ? true : null)}
               className="tactical-checkbox"
             />
-            <span className="text-sm font-medium dark:text-gray-300">Shotgun</span>
+            <span className="text-sm font-medium dark:text-slate-300">Shotgun</span>
           </label>
           <label className="flex items-center space-x-2">
             <Checkbox 
@@ -258,13 +266,13 @@ const HomePage = () => {
               onCheckedChange={(checked) => handleFilterChange('archery', checked ? true : null)}
               className="tactical-checkbox"
             />
-            <span className="text-sm font-medium dark:text-gray-300">Archery</span>
+            <span className="text-sm font-medium dark:text-slate-300">Archery</span>
           </label>
         </div>
       </div>
 
       <div>
-        <h3 data-testid="services-filter-header" className="tactical-heading text-sm mb-3 dark:text-gray-200">Services</h3>
+        <h3 data-testid="services-filter-header" className="tactical-heading text-sm mb-3 dark:text-slate-200">Services</h3>
         <div className="space-y-2">
           <label className="flex items-center space-x-2">
             <Checkbox 
@@ -273,7 +281,7 @@ const HomePage = () => {
               onCheckedChange={(checked) => handleFilterChange('instruction', checked ? true : null)}
               className="tactical-checkbox"
             />
-            <span className="text-sm font-medium dark:text-gray-300">Instruction</span>
+            <span className="text-sm font-medium dark:text-slate-300">Instruction</span>
           </label>
           <label className="flex items-center space-x-2">
             <Checkbox 
@@ -282,7 +290,7 @@ const HomePage = () => {
               onCheckedChange={(checked) => handleFilterChange('equipment_rentals', checked ? true : null)}
               className="tactical-checkbox"
             />
-            <span className="text-sm font-medium dark:text-gray-300">Equipment Rentals</span>
+            <span className="text-sm font-medium dark:text-slate-300">Equipment Rentals</span>
           </label>
           <label className="flex items-center space-x-2">
             <Checkbox 
@@ -291,7 +299,7 @@ const HomePage = () => {
               onCheckedChange={(checked) => handleFilterChange('retail_store', checked ? true : null)}
               className="tactical-checkbox"
             />
-            <span className="text-sm font-medium dark:text-gray-300">Retail Store</span>
+            <span className="text-sm font-medium dark:text-slate-300">Retail Store</span>
           </label>
           <label className="flex items-center space-x-2">
             <Checkbox 
@@ -300,7 +308,7 @@ const HomePage = () => {
               onCheckedChange={(checked) => handleFilterChange('youth_programs', checked ? true : null)}
               className="tactical-checkbox"
             />
-            <span className="text-sm font-medium dark:text-gray-300">Youth Programs</span>
+            <span className="text-sm font-medium dark:text-slate-300">Youth Programs</span>
           </label>
           <label className="flex items-center space-x-2">
             <Checkbox 
@@ -309,13 +317,13 @@ const HomePage = () => {
               onCheckedChange={(checked) => handleFilterChange('womens_programs', checked ? true : null)}
               className="tactical-checkbox"
             />
-            <span className="text-sm font-medium dark:text-gray-300">Women's Programs</span>
+            <span className="text-sm font-medium dark:text-slate-300">Women&apos;s Programs</span>
           </label>
         </div>
       </div>
 
       <div>
-        <h3 data-testid="competitions-filter-header" className="tactical-heading text-sm mb-3 dark:text-gray-200">Competitions</h3>
+        <h3 data-testid="competitions-filter-header" className="tactical-heading text-sm mb-3 dark:text-slate-200">Competitions</h3>
         <div className="space-y-2">
           <label className="flex items-center space-x-2">
             <Checkbox 
@@ -324,7 +332,7 @@ const HomePage = () => {
               onCheckedChange={(checked) => handleFilterChange('uspsa', checked ? true : null)}
               className="tactical-checkbox"
             />
-            <span className="text-sm font-medium dark:text-gray-300">USPSA</span>
+            <span className="text-sm font-medium dark:text-slate-300">USPSA</span>
           </label>
           <label className="flex items-center space-x-2">
             <Checkbox 
@@ -333,7 +341,7 @@ const HomePage = () => {
               onCheckedChange={(checked) => handleFilterChange('idpa', checked ? true : null)}
               className="tactical-checkbox"
             />
-            <span className="text-sm font-medium dark:text-gray-300">IDPA</span>
+            <span className="text-sm font-medium dark:text-slate-300">IDPA</span>
           </label>
           <label className="flex items-center space-x-2">
             <Checkbox 
@@ -342,7 +350,7 @@ const HomePage = () => {
               onCheckedChange={(checked) => handleFilterChange('precision_pistol', checked ? true : null)}
               className="tactical-checkbox"
             />
-            <span className="text-sm font-medium dark:text-gray-300">Precision Pistol</span>
+            <span className="text-sm font-medium dark:text-slate-300">Precision Pistol</span>
           </label>
           <label className="flex items-center space-x-2">
             <Checkbox 
@@ -351,17 +359,17 @@ const HomePage = () => {
               onCheckedChange={(checked) => handleFilterChange('three_gun', checked ? true : null)}
               className="tactical-checkbox"
             />
-            <span className="text-sm font-medium dark:text-gray-300">3-Gun</span>
+            <span className="text-sm font-medium dark:text-slate-300">3-Gun</span>
           </label>
         </div>
       </div>
 
-      <div className="pt-4 border-t border-slate-200 dark:border-gray-600">
+      <div className="pt-4 border-t border-slate-200 dark:border-slate-600">
         <Button 
           data-testid="clear-filters-button"
           variant="outline" 
           onClick={clearFilters} 
-          className="w-full"
+          className="w-full dark:border-slate-500 dark:text-slate-200 dark:hover:bg-slate-700"
         >
           Clear All Filters
         </Button>
@@ -370,17 +378,17 @@ const HomePage = () => {
   );
 
   const RangeCard = ({ range }) => (
-    <Card data-testid={`range-card-${range.id}`} className="range-card mb-4 cursor-pointer dark:bg-gray-700 dark:border-gray-600" onClick={() => setSelectedRange(range)}>
+    <Card data-testid={`range-card-${range.id}`} className="range-card mb-4 cursor-pointer dark:bg-slate-800 dark:border-slate-600" onClick={() => setSelectedRange(range)}>
       <CardHeader className="pb-3">
         <div className="flex justify-between items-start">
           <div>
-            <CardTitle className="tactical-heading text-lg dark:text-gray-100">{range.name}</CardTitle>
-            <p className="text-sm text-slate-600 dark:text-gray-300 mt-1">
+            <CardTitle className="tactical-heading text-lg dark:text-slate-100">{range.name}</CardTitle>
+            <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
               <MapPin className="inline w-4 h-4 mr-1" />
               {range.location.address}, {range.location.city}, {range.location.state}
             </p>
             {range.distance && (
-              <p className="text-xs text-slate-500 dark:text-gray-400">{range.distance.toFixed(1)} miles away</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">{range.distance.toFixed(1)} miles away</p>
             )}
           </div>
           {range.nssf_member && (
@@ -392,13 +400,13 @@ const HomePage = () => {
       <CardContent className="pt-0">
         <div className="flex flex-wrap gap-1 mb-3">
           {getAmenityBadges(range.amenities).map((badge, index) => (
-            <Badge key={index} data-testid={`amenity-badge-${range.id}-${index}`} variant="secondary" className="text-xs dark:bg-gray-600 dark:text-gray-200">
+            <Badge key={index} data-testid={`amenity-badge-${range.id}-${index}`} variant="secondary" className="text-xs dark:bg-slate-700 dark:text-slate-200">
               {badge}
             </Badge>
           ))}
         </div>
         
-        <div className="flex items-center gap-4 text-sm text-slate-600 dark:text-gray-300">
+        <div className="flex items-center gap-4 text-sm text-slate-600 dark:text-slate-300">
           {range.phone && (
             <div className="flex items-center">
               <Phone className="w-4 h-4 mr-1" />
@@ -422,7 +430,7 @@ const HomePage = () => {
           )}
         </div>
         
-        <div className="mt-3 pt-3 border-t border-slate-100 dark:border-gray-600">
+        <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-600">
           <Link 
             to={`/range/${range.id}`} 
             data-testid={`view-details-link-${range.id}`}
@@ -437,7 +445,7 @@ const HomePage = () => {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-gray-800 grid-pattern transition-colors duration-300">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 grid-pattern transition-colors duration-300">
       {/* Header with Video - Full Width */}
       <header className="relative text-white overflow-hidden w-screen -mx-4 sm:-mx-6 lg:-mx-8" style={{ minHeight: '400px' }}>
         {/* YouTube Video Background */}
@@ -456,6 +464,7 @@ const HomePage = () => {
             allow="autoplay; encrypted-media"
             allowFullScreen
             frameBorder="0"
+            loading="lazy"
           />
           {/* Dark overlay for text readability */}
           <div className="absolute inset-0 bg-slate-900 bg-opacity-60 z-10"></div>
@@ -515,10 +524,10 @@ const HomePage = () => {
                 onKeyDown={(e) => e.key === 'Enter' && searchRanges()}
               />
               <Select value={radius} onValueChange={setRadius}>
-                <SelectTrigger data-testid="radius-selector" className="w-32">
+                <SelectTrigger data-testid="radius-selector" className="w-32 dark:bg-slate-700 dark:border-slate-600">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="dark:bg-slate-800 dark:border-slate-600">
                   <SelectItem value="5">5 miles</SelectItem>
                   <SelectItem value="10">10 miles</SelectItem>
                   <SelectItem value="20">20 miles</SelectItem>
@@ -577,27 +586,27 @@ const HomePage = () => {
         <div className="container mx-auto px-4 h-full">
           <div className="flex gap-6 h-full">
             {/* Desktop Filter Panel */}
-            <div className="hidden lg:block w-80 filter-panel p-6 h-fit sticky top-6 dark:bg-gray-700 dark:border-gray-600">
-              <h2 data-testid="desktop-filter-header" className="tactical-heading text-lg mb-6 dark:text-gray-100">Filter Ranges</h2>
+            <div className="hidden lg:block w-80 filter-panel p-6 h-fit sticky top-6 dark:bg-slate-800 dark:border-slate-600">
+              <h2 data-testid="desktop-filter-header" className="tactical-heading text-lg mb-6 dark:text-slate-100">Filter Ranges</h2>
               <FilterPanel />
             </div>
             
             {/* Results */}
             <div className="flex-1">
               <div className="mb-4 flex justify-between items-center">
-                <h2 data-testid="results-header" className="tactical-heading text-xl dark:text-gray-100">
+                <h2 data-testid="results-header" className="tactical-heading text-xl dark:text-slate-100">
                   {ranges.length > 0 ? `${ranges.length} Ranges Found` : 'No Ranges Found'}
                 </h2>
                 <div className="flex items-center gap-2">
                   {userLocation && (
-                    <Badge data-testid="location-badge" variant="outline" className="text-xs">
+                    <Badge data-testid="location-badge" variant="outline" className="text-xs dark:border-slate-500 dark:text-slate-300">
                       <MapPin className="w-3 h-3 mr-1" />
                       Using your location
                     </Badge>
                   )}
                   
                   {/* View Toggle */}
-                  <div className="flex border rounded-lg overflow-hidden">
+                  <div className="flex border dark:border-slate-600 rounded-lg overflow-hidden">
                     <button
                       data-testid="list-view-btn"
                       onClick={() => setViewMode("list")}

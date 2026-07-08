@@ -6,15 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Badge } from "../components/ui/badge";
 import { Separator } from "../components/ui/separator";
 import { toast } from "sonner";
-import axios from "axios";
 import RangeReviews from "../components/RangeReviews";
 import ShareButtons from "../components/ShareButtons";
 import { RangeSEO } from "../components/SEO";
 import { useAuth } from "../contexts/AuthContext";
 import AuthModal from "../components/AuthModal";
-
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+import { fetchRange } from "../services/api";
+import LazyImage from "../components/LazyImage";
 
 const RangeDetailPage = () => {
   const { id } = useParams();
@@ -67,8 +65,8 @@ const RangeDetailPage = () => {
 
   const loadRange = async () => {
     try {
-      const response = await axios.get(`${API}/ranges/${id}`);
-      setRange(response.data);
+      const data = await fetchRange(id);
+      setRange(data);
     } catch (error) {
       console.error("Error loading range:", error);
       toast.error("Failed to load range details");
@@ -176,10 +174,10 @@ const RangeDetailPage = () => {
 
   if (loading) {
     return (
-      <div data-testid="loading-indicator" className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div data-testid="loading-indicator" className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-safety-orange mx-auto mb-4"></div>
-          <p className="text-slate-600">Loading range details...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500 mx-auto mb-4"></div>
+          <p className="text-slate-600 dark:text-slate-300">Loading range details...</p>
         </div>
       </div>
     );
@@ -187,10 +185,10 @@ const RangeDetailPage = () => {
 
   if (!range) {
     return (
-      <div data-testid="error-message" className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div data-testid="error-message" className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-xl font-semibold mb-2">Range not found</h2>
-          <p className="text-slate-600 mb-4">The range you're looking for doesn't exist or may have been removed.</p>
+          <h2 className="text-xl font-semibold mb-2 dark:text-slate-100">Range not found</h2>
+          <p className="text-slate-600 dark:text-slate-300 mb-4">The range you&apos;re looking for doesn&apos;t exist or may have been removed.</p>
           <Link to="/">
             <Button data-testid="back-to-search-button">Back to Search</Button>
           </Link>
@@ -213,7 +211,7 @@ const RangeDetailPage = () => {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
               <Link to="/" data-testid="back-link">
-                <Button variant="outline" size="sm" className="interactive-element">
+                <Button variant="outline" size="sm" className="interactive-element dark:border-slate-500 dark:text-slate-200 dark:hover:bg-slate-700">
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Back to Search
                 </Button>
@@ -233,7 +231,7 @@ const RangeDetailPage = () => {
             <Button
               onClick={handleFavoriteClick}
               variant={isFav ? "default" : "outline"}
-              className={`flex items-center gap-2 ${isFav ? 'bg-red-500 hover:bg-red-600 text-white' : ''}`}
+              className={`flex items-center gap-2 ${isFav ? 'bg-red-500 hover:bg-red-600 text-white' : 'dark:border-slate-500 dark:text-slate-200 dark:hover:bg-slate-700'}`}
               data-testid="favorite-btn"
             >
               <Heart className={`w-5 h-5 ${isFav ? 'fill-current' : ''}`} />
@@ -241,24 +239,24 @@ const RangeDetailPage = () => {
             </Button>
           </div>
           
-          <h1 data-testid="range-name" className="tactical-heading text-3xl md:text-4xl mb-2">{range.name}</h1>
-          <p data-testid="range-address" className="text-slate-600 flex items-center mb-4">
+          <h1 data-testid="range-name" className="tactical-heading text-3xl md:text-4xl mb-2 dark:text-slate-100">{range.name}</h1>
+          <p data-testid="range-address" className="text-slate-600 dark:text-slate-300 flex items-center mb-4">
             <MapPin className="w-5 h-5 mr-2" />
             {range.location.address}, {range.location.city}, {range.location.state} {range.location.zip_code}
           </p>
           
           <div className="flex flex-wrap gap-2 mb-4">
             {range.amenities.indoor && (
-              <Badge data-testid="indoor-badge" variant="secondary">Indoor Range</Badge>
+              <Badge data-testid="indoor-badge" variant="secondary" className="dark:bg-slate-700 dark:text-slate-200">Indoor Range</Badge>
             )}
             {range.amenities.outdoor && (
-              <Badge data-testid="outdoor-badge" variant="secondary">Outdoor Range</Badge>
+              <Badge data-testid="outdoor-badge" variant="secondary" className="dark:bg-slate-700 dark:text-slate-200">Outdoor Range</Badge>
             )}
             {range.amenities.public_access && (
-              <Badge data-testid="public-access-badge" variant="secondary">Public Access</Badge>
+              <Badge data-testid="public-access-badge" variant="secondary" className="dark:bg-slate-700 dark:text-slate-200">Public Access</Badge>
             )}
             {range.amenities.members_only && (
-              <Badge data-testid="members-only-badge" variant="secondary">Members Only</Badge>
+              <Badge data-testid="members-only-badge" variant="secondary" className="dark:bg-slate-700 dark:text-slate-200">Members Only</Badge>
             )}
           </div>
           
@@ -277,9 +275,9 @@ const RangeDetailPage = () => {
           <div className="lg:col-span-2 space-y-6">
             {/* Photo Gallery */}
             {range.photos && range.photos.length > 0 && (
-              <Card data-testid="photos-card" className="tactical-card">
+              <Card data-testid="photos-card" className="tactical-card dark:bg-slate-800 dark:border-slate-600">
                 <CardHeader>
-                  <CardTitle className="tactical-heading flex items-center">
+                  <CardTitle className="tactical-heading flex items-center dark:text-slate-100">
                     <Camera className="w-5 h-5 mr-2" />
                     Photos ({range.photos.length})
                   </CardTitle>
@@ -292,7 +290,7 @@ const RangeDetailPage = () => {
                         className="aspect-video cursor-pointer overflow-hidden rounded-lg hover:opacity-90 transition-opacity"
                         onClick={() => openLightbox(index)}
                       >
-                        <img
+                        <LazyImage
                           src={photo}
                           alt={`${range.name} - Photo ${index + 1}`}
                           className="w-full h-full object-cover"
@@ -306,9 +304,9 @@ const RangeDetailPage = () => {
 
             {/* Description */}
             {range.description && (
-              <Card data-testid="description-card" className="tactical-card">
+              <Card data-testid="description-card" className="tactical-card dark:bg-slate-800 dark:border-slate-600">
                 <CardHeader>
-                  <CardTitle className="tactical-heading">About This Range</CardTitle>
+                  <CardTitle className="tactical-heading dark:text-slate-100">About This Range</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-slate-700 dark:text-slate-300">{range.description}</p>
@@ -317,9 +315,9 @@ const RangeDetailPage = () => {
             )}
 
             {/* Range Capabilities */}
-            <Card data-testid="capabilities-card" className="tactical-card">
+            <Card data-testid="capabilities-card" className="tactical-card dark:bg-slate-800 dark:border-slate-600">
               <CardHeader>
-                <CardTitle className="tactical-heading flex items-center">
+                <CardTitle className="tactical-heading flex items-center dark:text-slate-100">
                   <Target className="w-5 h-5 mr-2" />
                   Range Capabilities
                 </CardTitle>
@@ -327,9 +325,9 @@ const RangeDetailPage = () => {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {getRangeCapabilities(range.amenities).map((capability, index) => (
-                    <div key={index} data-testid={`capability-${index}`} className="flex items-center p-3 bg-slate-50 border border-slate-200">
-                      <div className="w-2 h-2 bg-safety-orange mr-3"></div>
-                      <span className="font-medium">{capability}</span>
+                    <div key={index} data-testid={`capability-${index}`} className="flex items-center p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600">
+                      <div className="w-2 h-2 bg-orange-500 mr-3"></div>
+                      <span className="font-medium dark:text-slate-200">{capability}</span>
                     </div>
                   ))}
                 </div>
@@ -338,9 +336,9 @@ const RangeDetailPage = () => {
 
             {/* Services */}
             {getServices(range.amenities).length > 0 && (
-              <Card data-testid="services-card" className="tactical-card">
+              <Card data-testid="services-card" className="tactical-card dark:bg-slate-800 dark:border-slate-600">
                 <CardHeader>
-                  <CardTitle className="tactical-heading flex items-center">
+                  <CardTitle className="tactical-heading flex items-center dark:text-slate-100">
                     <Users className="w-5 h-5 mr-2" />
                     Services & Programs
                   </CardTitle>
@@ -349,8 +347,8 @@ const RangeDetailPage = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     {getServices(range.amenities).map((service, index) => (
                       <div key={index} data-testid={`service-${index}`} className="flex items-center py-2">
-                        <div className="w-1.5 h-1.5 bg-slate-400 mr-3"></div>
-                        <span>{service}</span>
+                        <div className="w-1.5 h-1.5 bg-slate-400 dark:bg-slate-500 mr-3"></div>
+                        <span className="dark:text-slate-200">{service}</span>
                       </div>
                     ))}
                   </div>
@@ -360,9 +358,9 @@ const RangeDetailPage = () => {
 
             {/* Competitions */}
             {getCompetitions(range.amenities).length > 0 && (
-              <Card data-testid="competitions-card" className="tactical-card">
+              <Card data-testid="competitions-card" className="tactical-card dark:bg-slate-800 dark:border-slate-600">
                 <CardHeader>
-                  <CardTitle className="tactical-heading flex items-center">
+                  <CardTitle className="tactical-heading flex items-center dark:text-slate-100">
                     <Award className="w-5 h-5 mr-2" />
                     Competitions & Matches
                   </CardTitle>
@@ -381,16 +379,16 @@ const RangeDetailPage = () => {
 
             {/* Facilities */}
             {getFacilities(range.amenities).length > 0 && (
-              <Card data-testid="facilities-card" className="tactical-card">
+              <Card data-testid="facilities-card" className="tactical-card dark:bg-slate-800 dark:border-slate-600">
                 <CardHeader>
-                  <CardTitle className="tactical-heading">Facilities & Amenities</CardTitle>
+                  <CardTitle className="tactical-heading dark:text-slate-100">Facilities & Amenities</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     {getFacilities(range.amenities).map((facility, index) => (
                       <div key={index} data-testid={`facility-${index}`} className="flex items-center py-2">
-                        <div className="w-1.5 h-1.5 bg-slate-400 mr-3"></div>
-                        <span>{facility}</span>
+                        <div className="w-1.5 h-1.5 bg-slate-400 dark:bg-slate-500 mr-3"></div>
+                        <span className="dark:text-slate-200">{facility}</span>
                       </div>
                     ))}
                   </div>
@@ -405,26 +403,26 @@ const RangeDetailPage = () => {
           {/* Right Column - Contact & Info */}
           <div className="space-y-6">
             {/* Contact Information */}
-            <Card data-testid="contact-card" className="tactical-card">
+            <Card data-testid="contact-card" className="tactical-card dark:bg-slate-800 dark:border-slate-600">
               <CardHeader>
-                <CardTitle className="tactical-heading">Contact Information</CardTitle>
+                <CardTitle className="tactical-heading dark:text-slate-100">Contact Information</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {range.phone && (
                   <div data-testid="phone-info" className="flex items-center">
-                    <Phone className="w-5 h-5 mr-3 text-safety-orange" />
-                    <span className="font-medium">{range.phone}</span>
+                    <Phone className="w-5 h-5 mr-3 text-orange-500" />
+                    <span className="font-medium dark:text-slate-200">{range.phone}</span>
                   </div>
                 )}
                 
                 {range.website && (
                   <div data-testid="website-info" className="flex items-center">
-                    <Globe className="w-5 h-5 mr-3 text-safety-orange" />
+                    <Globe className="w-5 h-5 mr-3 text-orange-500" />
                     <a 
                       href={range.website} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="font-medium text-blue-600 hover:underline"
+                      className="font-medium text-blue-600 dark:text-blue-400 hover:underline"
                     >
                       Visit Website
                     </a>
@@ -432,10 +430,10 @@ const RangeDetailPage = () => {
                 )}
                 
                 <div data-testid="address-info" className="flex items-start">
-                  <MapPin className="w-5 h-5 mr-3 text-safety-orange mt-0.5" />
+                  <MapPin className="w-5 h-5 mr-3 text-orange-500 mt-0.5" />
                   <div>
-                    <div className="font-medium">{range.location.address}</div>
-                    <div className="text-slate-600">
+                    <div className="font-medium dark:text-slate-200">{range.location.address}</div>
+                    <div className="text-slate-600 dark:text-slate-400">
                       {range.location.city}, {range.location.state} {range.location.zip_code}
                     </div>
                   </div>
@@ -456,9 +454,9 @@ const RangeDetailPage = () => {
             </Card>
 
             {/* Hours */}
-            <Card data-testid="hours-card" className="tactical-card">
+            <Card data-testid="hours-card" className="tactical-card dark:bg-slate-800 dark:border-slate-600">
               <CardHeader>
-                <CardTitle className="tactical-heading flex items-center">
+                <CardTitle className="tactical-heading flex items-center dark:text-slate-100">
                   <Clock className="w-5 h-5 mr-2" />
                   Hours of Operation
                 </CardTitle>
@@ -467,8 +465,8 @@ const RangeDetailPage = () => {
                 <div className="space-y-2">
                   {formatHours(range.hours).map((day, index) => (
                     <div key={index} data-testid={`hours-${day.day.toLowerCase()}`} className="flex justify-between text-sm">
-                      <span className="font-medium">{day.day}</span>
-                      <span className="text-slate-600">{day.hours}</span>
+                      <span className="font-medium dark:text-slate-200">{day.day}</span>
+                      <span className="text-slate-600 dark:text-slate-400">{day.hours}</span>
                     </div>
                   ))}
                 </div>
@@ -477,9 +475,9 @@ const RangeDetailPage = () => {
 
             {/* Pricing */}
             {range.pricing && (
-              <Card data-testid="pricing-card" className="tactical-card">
+              <Card data-testid="pricing-card" className="tactical-card dark:bg-slate-800 dark:border-slate-600">
                 <CardHeader>
-                  <CardTitle className="tactical-heading flex items-center">
+                  <CardTitle className="tactical-heading flex items-center dark:text-slate-100">
                     <DollarSign className="w-5 h-5 mr-2" />
                     Pricing
                   </CardTitle>
@@ -487,36 +485,36 @@ const RangeDetailPage = () => {
                 <CardContent className="space-y-3">
                   {range.pricing.day_pass && (
                     <div data-testid="day-pass-price" className="flex justify-between">
-                      <span>Day Pass</span>
-                      <span className="font-medium">${range.pricing.day_pass}</span>
+                      <span className="dark:text-slate-300">Day Pass</span>
+                      <span className="font-medium dark:text-slate-200">${range.pricing.day_pass}</span>
                     </div>
                   )}
                   
                   {range.pricing.hourly_rate && (
                     <div data-testid="hourly-rate-price" className="flex justify-between">
-                      <span>Hourly Rate</span>
-                      <span className="font-medium">${range.pricing.hourly_rate}/hr</span>
+                      <span className="dark:text-slate-300">Hourly Rate</span>
+                      <span className="font-medium dark:text-slate-200">${range.pricing.hourly_rate}/hr</span>
                     </div>
                   )}
                   
                   {range.pricing.monthly_membership && (
                     <div data-testid="monthly-membership-price" className="flex justify-between">
-                      <span>Monthly Membership</span>
-                      <span className="font-medium">${range.pricing.monthly_membership}/month</span>
+                      <span className="dark:text-slate-300">Monthly Membership</span>
+                      <span className="font-medium dark:text-slate-200">${range.pricing.monthly_membership}/month</span>
                     </div>
                   )}
                   
                   {range.pricing.annual_membership && (
                     <div data-testid="annual-membership-price" className="flex justify-between">
-                      <span>Annual Membership</span>
-                      <span className="font-medium">${range.pricing.annual_membership}/year</span>
+                      <span className="dark:text-slate-300">Annual Membership</span>
+                      <span className="font-medium dark:text-slate-200">${range.pricing.annual_membership}/year</span>
                     </div>
                   )}
                   
                   {range.pricing.notes && (
                     <>
-                      <Separator />
-                      <p data-testid="pricing-notes" className="text-sm text-slate-600">{range.pricing.notes}</p>
+                      <Separator className="dark:bg-slate-600" />
+                      <p data-testid="pricing-notes" className="text-sm text-slate-600 dark:text-slate-400">{range.pricing.notes}</p>
                     </>
                   )}
                 </CardContent>
@@ -525,13 +523,13 @@ const RangeDetailPage = () => {
 
             {/* Rating */}
             {range.google_rating && (
-              <Card data-testid="rating-card" className="tactical-card">
+              <Card data-testid="rating-card" className="tactical-card dark:bg-slate-800 dark:border-slate-600">
                 <CardContent className="pt-6">
                   <div className="text-center">
-                    <div data-testid="google-rating" className="text-2xl font-bold safety-orange mb-1">
+                    <div data-testid="google-rating" className="text-2xl font-bold text-orange-500 mb-1">
                       {range.google_rating} ⭐
                     </div>
-                    <div data-testid="google-reviews" className="text-sm text-slate-600">
+                    <div data-testid="google-reviews" className="text-sm text-slate-600 dark:text-slate-400">
                       Based on {range.google_reviews} Google reviews
                     </div>
                   </div>
