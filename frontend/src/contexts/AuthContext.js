@@ -10,6 +10,12 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const logout = useCallback(() => {
+    setToken(null);
+    setUser(null);
+    localStorage.removeItem('userToken');
+  }, []);
+
   const verifyToken = useCallback(async (tokenToVerify) => {
     try {
       const response = await axios.get(`${API_URL}/api/auth/me`, {
@@ -18,12 +24,12 @@ export const AuthProvider = ({ children }) => {
       setUser(response.data);
       setToken(tokenToVerify);
       return true;
-    } catch (error) {
+    } catch {
       // Token invalid, clear session
       logout();
       return false;
     }
-  }, []);
+  }, [logout]);
 
   useEffect(() => {
     // Check for existing session
@@ -90,20 +96,13 @@ export const AuthProvider = ({ children }) => {
       }
       return { success: false, error: 'Google authentication failed' };
     } catch (error) {
-      console.error('Google callback error:', error);
       return { success: false, error: error.response?.data?.detail || 'Authentication failed' };
     }
   };
 
-  const logout = () => {
-    setToken(null);
-    setUser(null);
-    localStorage.removeItem('userToken');
-  };
-
-  const getAuthHeaders = () => {
+  const getAuthHeaders = useCallback(() => {
     return token ? { Authorization: `Bearer ${token}` } : {};
-  };
+  }, [token]);
 
   // Add favorite
   const addFavorite = async (rangeId) => {
@@ -149,7 +148,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Get user's favorite ranges
-  const getFavorites = async () => {
+  const getFavorites = useCallback(async () => {
     if (!token) return [];
     
     try {
@@ -157,11 +156,10 @@ export const AuthProvider = ({ children }) => {
         headers: { Authorization: `Bearer ${token}` }
       });
       return response.data;
-    } catch (error) {
-      console.error('Error fetching favorites:', error);
+    } catch {
       return [];
     }
-  };
+  }, [token]);
 
   return (
     <AuthContext.Provider value={{

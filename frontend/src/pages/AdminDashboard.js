@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
@@ -32,6 +32,38 @@ const AdminDashboard = () => {
   });
   const [changingPassword, setChangingPassword] = useState(false);
 
+  const getAuthHeaders = useCallback(() => ({
+    headers: {
+      'Authorization': `Bearer ${adminSession.getToken()}`
+    }
+  }), []);
+
+  const loadSubmissions = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`${API_URL}/api/admin/submissions`, getAuthHeaders());
+      setSubmissions(response.data);
+    } catch (error) {
+      if (error.response?.status === 401) {
+        adminSession.clearSession();
+        navigate('/admin');
+        return;
+      }
+      toast.error('Failed to load submissions');
+    } finally {
+      setLoading(false);
+    }
+  }, [getAuthHeaders, navigate]);
+
+  const loadStats = useCallback(async () => {
+    try {
+      const response = await axios.get(`${API_URL}/api/stats`);
+      setStats(response.data);
+    } catch {
+      // Stats failed to load, continue without them
+    }
+  }, []);
+
   useEffect(() => {
     // Check if user is authenticated
     if (!adminSession.checkSession()) {
@@ -40,19 +72,13 @@ const AdminDashboard = () => {
     }
     loadSubmissions();
     loadStats();
-  }, [navigate]);
+  }, [navigate, loadSubmissions, loadStats]);
 
   const handleLogout = () => {
     adminSession.clearSession();
     toast.success('Logged out successfully');
     navigate('/admin');
   };
-
-  const getAuthHeaders = () => ({
-    headers: {
-      'Authorization': `Bearer ${adminSession.getToken()}`
-    }
-  });
 
   const handleChangePassword = async () => {
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
@@ -75,37 +101,9 @@ const AdminDashboard = () => {
       setShowSettings(false);
       setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
     } catch (error) {
-      console.error('Error changing password:', error);
       toast.error(error.response?.data?.detail || 'Failed to change password');
     } finally {
       setChangingPassword(false);
-    }
-  };
-
-  const loadSubmissions = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get(`${API_URL}/api/admin/submissions`, getAuthHeaders());
-      setSubmissions(response.data);
-    } catch (error) {
-      console.error('Error loading submissions:', error);
-      if (error.response?.status === 401) {
-        adminSession.clearSession();
-        navigate('/admin');
-        return;
-      }
-      toast.error('Failed to load submissions');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadStats = async () => {
-    try {
-      const response = await axios.get(`${API_URL}/api/stats`);
-      setStats(response.data);
-    } catch (error) {
-      console.error('Error loading stats:', error);
     }
   };
 
@@ -118,7 +116,6 @@ const AdminDashboard = () => {
       loadStats();
       setSelectedSubmission(null);
     } catch (error) {
-      console.error('Error approving submission:', error);
       if (error.response?.status === 401) {
         adminSession.clearSession();
         navigate('/admin');
@@ -138,7 +135,6 @@ const AdminDashboard = () => {
       loadSubmissions();
       setSelectedSubmission(null);
     } catch (error) {
-      console.error('Error rejecting submission:', error);
       if (error.response?.status === 401) {
         adminSession.clearSession();
         navigate('/admin');

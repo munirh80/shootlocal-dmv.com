@@ -15,9 +15,9 @@ from datetime import datetime
 
 BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', '').rstrip('/')
 
-# Test user credentials
+# Test user credentials from environment (with fallback for local testing)
 TEST_USER_EMAIL = f"test_password_{uuid.uuid4().hex[:8]}@example.com"
-TEST_USER_PASSWORD = "testpass123"
+TEST_USER_PASSWORD = os.environ.get('TEST_USER_PASSWORD', 'testpass123')
 TEST_USER_NAME = "Test Password User"
 
 class TestForgotPassword:

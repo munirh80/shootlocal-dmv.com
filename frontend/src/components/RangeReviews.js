@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -211,27 +211,27 @@ const RangeReviews = ({ rangeId, rangeName }) => {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   
-  useEffect(() => {
-    loadReviews();
-  }, [rangeId]);
-  
-  const loadReviews = async () => {
+  const loadReviews = useCallback(async () => {
     try {
       const response = await axios.get(`${API_URL}/api/reviews/${rangeId}`);
       setReviews(response.data.reviews);
       setStats(response.data.stats);
-    } catch (error) {
-      console.error('Error loading reviews:', error);
+    } catch {
+      // Reviews failed to load, continue without them
     } finally {
       setLoading(false);
     }
-  };
+  }, [rangeId]);
+
+  useEffect(() => {
+    loadReviews();
+  }, [loadReviews]);
   
   const handleHelpful = async (reviewId) => {
     try {
       await axios.post(`${API_URL}/api/reviews/${reviewId}/helpful`);
-    } catch (error) {
-      console.error('Error marking helpful:', error);
+    } catch {
+      // Failed to mark helpful, fail silently
     }
   };
   

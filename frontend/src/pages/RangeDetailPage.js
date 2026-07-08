@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, MapPin, Phone, Globe, Clock, DollarSign, Shield, Target, Users, Award, Camera, ChevronLeft, ChevronRight, X, Heart } from "lucide-react";
 import { Button } from "../components/ui/button";
@@ -25,9 +25,20 @@ const RangeDetailPage = () => {
   const { isAuthenticated, isFavorite, addFavorite, removeFavorite } = useAuth();
   const [isFav, setIsFav] = useState(false);
 
+  const loadRange = useCallback(async () => {
+    try {
+      const data = await fetchRange(id);
+      setRange(data);
+    } catch {
+      toast.error("Failed to load range details");
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
+
   useEffect(() => {
     loadRange();
-  }, [id]);
+  }, [loadRange]);
 
   // Check favorite status when auth state or range changes
   useEffect(() => {
@@ -60,18 +71,6 @@ const RangeDetailPage = () => {
       } else {
         toast.error(result.error);
       }
-    }
-  };
-
-  const loadRange = async () => {
-    try {
-      const data = await fetchRange(id);
-      setRange(data);
-    } catch (error) {
-      console.error("Error loading range:", error);
-      toast.error("Failed to load range details");
-    } finally {
-      setLoading(false);
     }
   };
 

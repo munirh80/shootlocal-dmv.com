@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Search, MapPin, Filter, Navigation, Phone, Globe, Clock, Map, List, Plus } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -54,6 +54,7 @@ const HomePage = () => {
   useEffect(() => {
     loadStats();
     loadInitialRanges();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Auto-search when debounced query changes
@@ -61,14 +62,15 @@ const HomePage = () => {
     if (debouncedSearchQuery !== "") {
       searchRanges(debouncedSearchQuery, userLocation, filters);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearchQuery]);
 
   const loadStats = async () => {
     try {
       const data = await fetchStats();
       setStats(data);
-    } catch (error) {
-      console.error("Error loading stats:", error);
+    } catch {
+      // Stats failed to load, continue without them
     }
   };
 
@@ -77,8 +79,7 @@ const HomePage = () => {
       setLoading(true);
       const data = await fetchRanges({ limit: 50 });
       setRanges(data);
-    } catch (error) {
-      console.error("Error loading ranges:", error);
+    } catch {
       toast.error("Failed to load ranges");
     } finally {
       setLoading(false);
@@ -146,8 +147,7 @@ const HomePage = () => {
       } else {
         toast.success(`Found ${data.length} ranges`);
       }
-    } catch (error) {
-      console.error("Error searching ranges:", error);
+    } catch {
       toast.error("Failed to search ranges");
     } finally {
       setLoading(false);

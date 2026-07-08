@@ -9,9 +9,9 @@ import uuid
 
 BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', '').rstrip('/')
 
-# Test credentials
-TEST_USER_EMAIL = "testuser@example.com"
-TEST_USER_PASSWORD = "testpass123"
+# Test credentials from environment
+TEST_USER_EMAIL = os.environ.get('TEST_USER_EMAIL', 'testuser@example.com')
+TEST_USER_PASSWORD = os.environ.get('TEST_USER_PASSWORD', 'testpass123')
 
 
 class TestUserRegistration:

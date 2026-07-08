@@ -1045,11 +1045,16 @@ async def change_admin_password(request: ChangePasswordRequest, token: str = Dep
             lines = f.readlines()
         
         with open(env_path, 'w') as f:
+            password_updated = False
             for line in lines:
                 if line.startswith('ADMIN_PASSWORD='):
-                    f.write(f'ADMIN_PASSWORD="{request.new_password}"\n')
+                    f.write(f'ADMIN_PASSWORD={request.new_password}\n')
+                    password_updated = True
                 else:
                     f.write(line)
+            # Add password line if it didn't exist
+            if not password_updated:
+                f.write(f'ADMIN_PASSWORD={request.new_password}\n')
     except Exception as e:
         logging.error(f"Failed to update .env file: {e}")
     
