@@ -998,7 +998,7 @@ async def check_favorite(range_id: str, user_data: dict = Depends(optional_user_
     is_favorite = range_id in user.get("favorites", [])
     return {"is_favorite": is_favorite}
 
-# Admin Login Model
+#  Login Model
 class AdminLoginRequest(BaseModel):
     password: str
 
