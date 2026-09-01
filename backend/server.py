@@ -1043,26 +1043,6 @@ async def change_admin_password(request: ChangePasswordRequest, token: str = Dep
     # Update password in memory
     ADMIN_PASSWORD_HASH = hash_password(request.new_password)
     
-    # Also update the .env file
-    try:
-        env_path = ROOT_DIR / '.env'
-        with open(env_path, 'r') as f:
-            lines = f.readlines()
-        
-        with open(env_path, 'w') as f:
-            password_updated = False
-            for line in lines:
-                if line.startswith('ADMIN_PASSWORD='):
-                    f.write(f'ADMIN_PASSWORD={ADMIN_PASSWORD_HASH}\n')
-                    password_updated = True
-                else:
-                    f.write(line)
-            # Add password line if it didn't exist
-            if not password_updated:
-                f.write(f'ADMIN_PASSWORD={ADMIN_PASSWORD_HASH}\n')
-    except Exception as e:
-        logging.error(f"Failed to update .env file: {e}")
-    
     return {"success": True, "message": "Password changed successfully"}
 
 @api_router.get("/admin/submissions")
