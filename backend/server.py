@@ -43,6 +43,11 @@ JWT_EXPIRATION_HOURS = 24 * 7  # 1 week
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+def _is_bcrypt_hash(value: str) -> bool:
+    return value.startswith(("$2a$", "$2b$", "$2y$"))
+
+ADMIN_PASSWORD_HASH = ADMIN_PASSWORD if _is_bcrypt_hash(ADMIN_PASSWORD) else pwd_context.hash(ADMIN_PASSWORD)
+
 # Email configuration
 resend.api_key = os.environ.get('RESEND_API_KEY')
 SENDER_EMAIL = os.environ.get('SENDER_EMAIL', 'onboarding@resend.dev')
@@ -1010,7 +1015,7 @@ class ChangePasswordRequest(BaseModel):
 @api_router.post("/admin/login")
 async def admin_login(request: AdminLoginRequest):
     """Authenticate admin user"""
-    if request.password == ADMIN_PASSWORD:
+    if verify_password(request.password, ADMIN_PASSWORD_HASH):
         token = generate_token()
         admin_tokens.add(token)
         return {"success": True, "token": token}
@@ -1025,10 +1030,10 @@ async def admin_logout(token: str = Depends(verify_token)):
 @api_router.post("/admin/change-password")
 async def change_admin_password(request: ChangePasswordRequest, token: str = Depends(verify_token)):
     """Change admin password"""
-    global ADMIN_PASSWORD
+    global ADMIN_PASSWORD_HASH
     
     # Verify current password
-    if request.current_password != ADMIN_PASSWORD:
+    if not verify_password(request.current_password, ADMIN_PASSWORD_HASH):
         raise HTTPException(status_code=400, detail="Current password is incorrect")
     
     # Validate new password
@@ -1036,27 +1041,7 @@ async def change_admin_password(request: ChangePasswordRequest, token: str = Dep
         raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
     
     # Update password in memory
-    ADMIN_PASSWORD = request.new_password
-    
-    # Also update the .env file
-    try:
-        env_path = ROOT_DIR / '.env'
-        with open(env_path, 'r') as f:
-            lines = f.readlines()
-        
-        with open(env_path, 'w') as f:
-            password_updated = False
-            for line in lines:
-                if line.startswith('ADMIN_PASSWORD='):
-                    f.write(f'ADMIN_PASSWORD={request.new_password}\n')
-                    password_updated = True
-                else:
-                    f.write(line)
-            # Add password line if it didn't exist
-            if not password_updated:
-                f.write(f'ADMIN_PASSWORD={request.new_password}\n')
-    except Exception as e:
-        logging.error(f"Failed to update .env file: {e}")
+    ADMIN_PASSWORD_HASH = hash_password(request.new_password)
     
     return {"success": True, "message": "Password changed successfully"}
 
@@ -1362,7 +1347,8 @@ async def bulk_import_ranges(file: UploadFile = File(...), token: str = Depends(
             imported += 1
             
         except Exception as e:
-            errors.append(f"Row {idx + 2}: {str(e)}")
+            logger.exception("Bulk import failed for row %s", idx + 2)
+            errors.append(f"Row {idx + 2}: Invalid or unsupported data")
     
     return {
         "success": True,

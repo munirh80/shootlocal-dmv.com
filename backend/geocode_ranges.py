@@ -73,7 +73,7 @@ async def geocode_address(address: str, city: str, state: str, zip_code: str) ->
                     return (lat, lon)
                     
         except Exception as e:
-            print(f"Error geocoding {full_address}: {e}")
+            print(f"Error geocoding address: {e}")
     
     return (None, None)
 
