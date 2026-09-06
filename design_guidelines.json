@@ -1,0 +1,125 @@
+{
+  "identity": {
+    "name": "RangeFinder VA/MD",
+    "archetype": "The Performance Pro (Tactical Precision)",
+    "tone": "Authoritative, Safe, Precise, Local",
+    "description": "A high-performance directory for shooting ranges in Virginia and Maryland. The design prioritizes clarity, data density, and a 'tactical' aesthetic that resonates with the target audience (gun owners, competitors, hunters)."
+  },
+  "typography": {
+    "primary_font": "Inter",
+    "secondary_font": "Barlow Condensed",
+    "font_weights": {
+      "body": "400",
+      "heading": "700",
+      "display": "800"
+    },
+    "usage": {
+      "headings": "Barlow Condensed, Uppercase, Tracking-Tight, Bold/Black",
+      "body": "Inter, Clean, Legible",
+      "labels": "Inter, Uppercase, Tracking-Widest, Text-XS"
+    }
+  },
+  "colors": {
+    "palette": {
+      "primary": {
+        "name": "Tactical Slate",
+        "hex": "#0F172A",
+        "tailwind": "bg-slate-900"
+      },
+      "secondary": {
+        "name": "Safety Orange",
+        "hex": "#F97316",
+        "tailwind": "bg-orange-500"
+      },
+      "accent": {
+        "name": "Ballistic Blue",
+        "hex": "#38BDF8",
+        "tailwind": "bg-sky-400"
+      },
+      "background": {
+        "light": "#F8FAFC",
+        "dark": "#020617"
+      },
+      "surface": {
+        "light": "#FFFFFF",
+        "dark": "#1E293B"
+      }
+    },
+    "usage_rules": {
+      "ctas": "Safety Orange (#F97316) for primary actions. High visibility.",
+      "headers": "Tactical Slate (#0F172A). Dark, grounded.",
+      "borders": "1px solid Slate-200 (Light) or Slate-700 (Dark). Crisp edges.",
+      "text": "Slate-900 (Headings), Slate-600 (Body). Avoid pure black."
+    }
+  },
+  "visual_enhancers": {
+    "borders": "Sharp corners (rounded-sm or rounded-none). 2px borders on active elements.",
+    "shadows": "Tight, sharp shadows (shadow-sm). No diffuse 'glows'.",
+    "textures": "Subtle 'grid' patterns or 'noise' overlays on dark backgrounds to simulate technical surfaces.",
+    "icons": "Phosphor Icons (Bold/Fill weight) or Lucide (Stroke width 2px).",
+    "glassmorphism": "Minimal. Use solid semi-transparent layers (bg-slate-900/90) with blur for HUD feel."
+  },
+  "components": {
+    "buttons": {
+      "style": "Rectangular or slightly rounded (rounded-sm). Uppercase text. Bold.",
+      "variants": {
+        "primary": "bg-orange-500 hover:bg-orange-600 text-white shadow-sm",
+        "secondary": "bg-slate-100 hover:bg-slate-200 text-slate-900 border border-slate-200",
+        "outline": "border-2 border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white"
+      }
+    },
+    "cards": {
+      "style": "Flat, bordered (border-slate-200). No massive shadows. 'Data Card' aesthetic.",
+      "header": "Bold, uppercase title with a colored accent bar on the left."
+    },
+    "inputs": {
+      "style": "Square, heavy border (border-2). Focus ring is sharp (ring-offset-0).",
+      "background": "bg-slate-50"
+    },
+    "badges": {
+      "style": "Square, uppercase, tracking-wider. Solid colors (bg-slate-900 text-white) or outline."
+    }
+  },
+  "layout": {
+    "grid_system": "Bento Grid for categories. Split View (50/50 or 40/60) for Search Results (Map/List).",
+    "spacing": "Dense but structured. Use 'gap-4' for data, 'gap-12' for sections.",
+    "container": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+  },
+  "motion": {
+    "type": "Technical/Snap",
+    "duration": "Fast (150ms - 200ms)",
+    "easing": "ease-out",
+    "hover": "Instant feedback. Color shifts, border thickening. No floaty movements."
+  },
+  "media": {
+    "image_style": "High contrast, desaturated or cool-toned. Focus on equipment, landscapes, and focus.",
+    "image_urls": {
+      "hero_bg": "https://images.unsplash.com/photo-1762089424708-9615cb5041ec",
+      "indoor_range": "https://images.unsplash.com/photo-1761144530756-47ecd564f8ef",
+      "safety_gear": "https://images.pexels.com/photos/6091281/pexels-photo-6091281.jpeg",
+      "outdoor_landscape": "https://images.unsplash.com/photo-1533091917107-98f819e4cb54",
+      "targets": "https://images.unsplash.com/photo-1761144438625-196d586f54d1"
+    }
+  },
+  "accessibility": {
+    "contrast": "AA Standard minimum. AAA for small text.",
+    "focus_states": "High visibility orange ring (ring-orange-500).",
+    "reduced_motion": "Respect user settings. Disable map animations if requested."
+  },
+  "instructions_to_main_agent": [
+    "Use 'Barlow Condensed' from Google Fonts for all headings. Import it in index.css.",
+    "Implement a 'Split View' layout for the search page: Map on one side (sticky), scrollable list on the other.",
+    "Use the 'Safety Orange' (#F97316) sparingly for high-impact actions (Search, Book, Claim).",
+    "Ensure the 'Range Detail' page looks like a 'Technical Spec Sheet' - organized, grid-based, data-heavy.",
+    "Use 'Lucide-React' icons with a stroke width of 2px for a robust look.",
+    "For the Map, use a dark or desaturated custom style if possible, or standard map with custom markers.",
+    "Do not use rounded-xl or rounded-2xl. Stick to rounded-sm or rounded-md max."
+  ],
+  "universal_guidelines": [
+    "Avoid 'AI Slop' - generic, centered, gradient-heavy designs.",
+    "Create depth through borders and layering, not just shadows.",
+    "Use 'sonner' for toasts.",
+    "Ensure all interactive elements have 'data-testid'.",
+    "Mobile-first responsive design is critical for field use."
+  ]
+}

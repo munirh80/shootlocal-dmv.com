@@ -1,0 +1,135 @@
+/* Remove default center alignment */
+.App {
+  text-align: left;
+}
+
+/* Full width video header */
+header {
+  width: 100vw !important;
+  margin-left: calc(-50vw + 50%) !important;
+  position: relative;
+}
+
+/* Video header styling */
+.video-header {
+  position: relative;
+  height: 400px;
+  min-height: 400px;
+  overflow: hidden;
+  width: 100vw;
+}
+
+.video-header iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+  object-fit: cover;
+  z-index: 1;
+}
+
+/* Ensure video covers the entire header area */
+header iframe {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  width: 100vw !important;
+  height: 56.25vw !important; /* 16:9 aspect ratio */
+  min-height: 100% !important;
+  min-width: 177.77vh !important; /* 16:9 aspect ratio */
+  transform: translate(-50%, -50%) !important;
+  object-fit: cover !important;
+  z-index: 1 !important;
+}
+
+@media (max-width: 768px) {
+  .video-header {
+    height: 300px;
+    min-height: 300px;
+  }
+  
+  header {
+    width: 100vw !important;
+    margin-left: calc(-50vw + 50%) !important;
+  }
+  
+  header iframe {
+    min-height: 300px !important;
+    width: 100vw !important;
+    height: 56.25vw !important;
+    min-width: 177.77vh !important;
+  }
+}
+
+@media (min-width: 1920px) {
+  header iframe {
+    min-height: 500px !important;
+  }
+}
+
+/* Custom scrollbar for results */
+.results-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.results-scroll::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.results-scroll::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 3px;
+}
+
+.results-scroll::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* Tactical grid pattern overlay */
+.grid-pattern {
+  background-image: 
+    linear-gradient(rgba(148, 163, 184, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.1) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.dark .grid-pattern {
+  background-image: 
+    linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
+}
+
+/* HUD-style elements */
+.hud-element {
+  @apply bg-slate-900/90 text-white backdrop-blur-sm border border-slate-700;
+}
+
+/* Status indicators */
+.status-online {
+  @apply bg-green-500;
+}
+
+.status-offline {
+  @apply bg-red-500;
+}
+
+.status-unknown {
+  @apply bg-slate-400;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+  .mobile-stack {
+    @apply flex-col;
+  }
+  
+  .mobile-full {
+    @apply w-full;
+  }
+  
+  .mobile-hidden {
+    @apply hidden;
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc -l /Users/munir/Downloads/shootlocal-dmv.com-main/backend/server.py; python3 -c \"\nimport pathlib\np=pathlib.Path('/Users/munir/Downloads/shootlocal-dmv.com-main/backend/server.py')\ntext=p.read_text()\nfor i,line in enumerate(text.splitlines(),1):\n    if any(k in line.lower() for k in ['google','callback','/ranges','auth','include_router']):\n        print(f'{i}: {line}')\n\")",
+      "Bash(ls /Users/munir/Downloads/shootlocal-dmv.com-main && ls /Users/munir/Downloads/shootlocal-dmv.com-main/frontend 2>/dev/null | head -30)",
+      "Bash(lsof -iTCP -sTCP:LISTEN -P 2>/dev/null | grep -E \"node|python|uvicorn|:3000|:8000|:8001\" | head -10; echo \"---\"; curl -s -o /dev/null -w \"port8001/api/ranges -> %{http_code}\\n\" \"http://localhost:8001/api/ranges\" --max-time 3; curl -s -o /dev/null -w \"port8000/api/ranges -> %{http_code}\\n\" \"http://localhost:8000/api/ranges\" --max-time 3; curl -s -o /dev/null -w \"port3000/api/ranges -> %{http_code}\\n\" \"http://localhost:3000/api/ranges\" --max-time 3)",
+      "Bash(cd /Users/munir/Downloads/shootlocal-dmv.com-main/backend && ps -p 80331 -o lstart= ; stat -f \"%Sm %N\" server.py .env 2>/dev/null; echo \"---env keys (masked)---\"; sed 's/=.*/=<set>/' .env 2>/dev/null)",
+      "Bash(kill 80331 && sleep 2; cd /Users/munir/Downloads/shootlocal-dmv.com-main/backend && nohup ./venv/bin/uvicorn server:app --host 127.0.0.1 --port 8000 --reload > uvicorn.log 2>&1 & sleep 6; tail -5 uvicorn.log; echo \"---probe---\"; curl -s -o /dev/null -w \"ranges -> %{http_code}\\n\" http://localhost:8000/api/ranges --max-time 10)",
+      "Bash(curl -s -X POST \"http://localhost:8000/api/auth/register\" -H \"Content-Type: application/json\" -d '{\"name\":\"E2E Probe\",\"email\":\"e2e.probe@example.com\",\"password\":\"TestPass123!\"}' --max-time 15 -w \"\\nHTTP %{http_code}\\n\" | head -c 400)",
+      "Bash(cd /Users/munir/Downloads/shootlocal-dmv.com-main/frontend && BROWSER=none nohup npm start > devserver.log 2>&1 & echo \"started, waiting for compile...\"; for i in $(seq 1 24); do sleep 5; if grep -qE \"Compiled successfully|Compiled with\" devserver.log 2>/dev/null; then break; fi; done; tail -8 devserver.log; echo \"---probe---\"; curl -s -o /dev/null -w \"app -> %{http_code}\\n\" http://localhost:3000/ --max-time 10; curl -s -o /dev/null -w \"api via proxy -> %{http_code}\\n\" http://localhost:3000/api/ranges --max-time 10)",
+      "browser_interact",
+      "browser_execute"
+    ]
+  }
+}

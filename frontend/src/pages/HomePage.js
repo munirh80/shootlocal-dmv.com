@@ -1,0 +1,690 @@
+import React, { useState, useEffect, useCallback } from "react";
+import { Search, MapPin, Filter, Navigation, Phone, Globe, Clock, Map, List, Plus } from "lucide-react";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import { Badge } from "../components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "../components/ui/sheet";
+import { Checkbox } from "../components/ui/checkbox";
+import { toast } from "sonner";
+import { Link, useNavigate } from "react-router-dom";
+import ThemeToggle from "../components/ThemeToggle";
+import RangeMap from "../components/RangeMap";
+import UserMenu from "../components/UserMenu";
+import { useDebounce } from "../hooks/useDebounce";
+import { fetchRanges, fetchStats } from "../services/api";
+
+const HomePage = () => {
+  const navigate = useNavigate();
+  const [ranges, setRanges] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [userLocation, setUserLocation] = useState(null);
+  const [radius, setRadius] = useState("20");
+  const [stats, setStats] = useState(null);
+  const [selectedRange, setSelectedRange] = useState(null);
+  const [viewMode, setViewMode] = useState("list"); // "list" or "map"
+  
+  // Debounced search query for performance
+  const debouncedSearchQuery = useDebounce(searchQuery, 400);
+  
+  // Filter states
+  const [filters, setFilters] = useState({
+    indoor: null,
+    outdoor: null,
+    nssf_member: null,
+    public_access: null,
+    instruction: null,
+    equipment_rentals: null,
+    retail_store: null,
+    youth_programs: null,
+    womens_programs: null,
+    uspsa: null,
+    idpa: null,
+    precision_pistol: null,
+    three_gun: null,
+    handgun: null,
+    rifle: null,
+    shotgun: null,
+    archery: null
+  });
+
+  // Load stats on component mount
+  useEffect(() => {
+    loadStats();
+    loadInitialRanges();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Auto-search when debounced query changes
+  useEffect(() => {
+    if (debouncedSearchQuery !== "") {
+      searchRanges(debouncedSearchQuery, userLocation, filters);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearchQuery]);
+
+  const loadStats = async () => {
+    try {
+      const data = await fetchStats();
+      setStats(data);
+    } catch {
+      // Stats failed to load, continue without them
+    }
+  };
+
+  const loadInitialRanges = async () => {
+    try {
+      setLoading(true);
+      const data = await fetchRanges({ limit: 50 });
+      setRanges(data);
+    } catch {
+      toast.error("Failed to load ranges");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getCurrentLocation = () => {
+    if (navigator.geolocation) {
+      setLoading(true);
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const location = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
+          };
+          setUserLocation(location);
+          searchRanges(null, location);
+          toast.success("Location detected successfully");
+        },
+        (error) => {
+          toast.error("Unable to get your location. Please enter a city or ZIP code.");
+          setLoading(false);
+        }
+      );
+    } else {
+      toast.error("Geolocation is not supported by this browser");
+    }
+  };
+
+  const searchRanges = async (query = searchQuery, location = userLocation, searchFilters = filters) => {
+    try {
+      setLoading(true);
+      
+      const params = {};
+      
+      // Add location parameters
+      if (location) {
+        params.latitude = location.latitude;
+        params.longitude = location.longitude;
+        params.radius = radius;
+      }
+      
+      // Add search query parameters
+      if (query) {
+        // Check if it's a ZIP code or city
+        if (/^\d{5}$/.test(query)) {
+          params.zip_code = query;
+        } else {
+          params.city = query;
+        }
+      }
+      
+      // Add filters
+      Object.entries(searchFilters).forEach(([key, value]) => {
+        if (value !== null) {
+          params[key] = value;
+        }
+      });
+      
+      const data = await fetchRanges(params);
+      setRanges(data);
+      
+      if (data.length === 0) {
+        toast.info("No ranges found matching your criteria. Try adjusting your search or filters.");
+      } else {
+        toast.success(`Found ${data.length} ranges`);
+      }
+    } catch {
+      toast.error("Failed to search ranges");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFilterChange = (filterKey, value) => {
+    const newFilters = { ...filters, [filterKey]: value };
+    setFilters(newFilters);
+    
+    // Trigger search with new filters
+    searchRanges(searchQuery, userLocation, newFilters);
+  };
+
+  const clearFilters = () => {
+    const clearedFilters = {
+      indoor: null,
+      outdoor: null,
+      nssf_member: null,
+      public_access: null,
+      instruction: null,
+      equipment_rentals: null,
+      retail_store: null,
+      youth_programs: null,
+      womens_programs: null,
+      uspsa: null,
+      idpa: null,
+      precision_pistol: null,
+      three_gun: null,
+      handgun: null,
+      rifle: null,
+      shotgun: null,
+      archery: null
+    };
+    setFilters(clearedFilters);
+    
+    // Trigger search with cleared filters
+    searchRanges(searchQuery, userLocation, clearedFilters);
+  };
+
+  const getAmenityBadges = (amenities) => {
+    const badges = [];
+    if (amenities.indoor) badges.push("Indoor");
+    if (amenities.outdoor) badges.push("Outdoor");
+    if (amenities.handgun) badges.push("Handgun");
+    if (amenities.rifle) badges.push("Rifle");
+    if (amenities.shotgun) badges.push("Shotgun");
+    if (amenities.archery) badges.push("Archery");
+    if (amenities.instruction) badges.push("Training");
+    if (amenities.equipment_rentals) badges.push("Rentals");
+    if (amenities.uspsa) badges.push("USPSA");
+    if (amenities.idpa) badges.push("IDPA");
+    return badges.slice(0, 4); // Show max 4 badges
+  };
+
+  const FilterPanel = () => (
+    <div className="space-y-6">
+      <div>
+        <h3 data-testid="range-type-filter-header" className="tactical-heading text-sm mb-3 dark:text-slate-200">Range Type</h3>
+        <div className="space-y-2">
+          <label className="flex items-center space-x-2">
+            <Checkbox 
+              data-testid="indoor-filter-checkbox"
+              checked={filters.indoor === true} 
+              onCheckedChange={(checked) => handleFilterChange('indoor', checked ? true : null)}
+              className="tactical-checkbox"
+            />
+            <span className="text-sm font-medium dark:text-slate-300">Indoor</span>
+          </label>
+          <label className="flex items-center space-x-2">
+            <Checkbox 
+              data-testid="outdoor-filter-checkbox"
+              checked={filters.outdoor === true} 
+              onCheckedChange={(checked) => handleFilterChange('outdoor', checked ? true : null)}
+              className="tactical-checkbox"
+            />
+            <span className="text-sm font-medium dark:text-slate-300">Outdoor</span>
+          </label>
+        </div>
+      </div>
+
+      <div>
+        <h3 data-testid="firearms-filter-header" className="tactical-heading text-sm mb-3 dark:text-slate-200">Firearms</h3>
+        <div className="space-y-2">
+          <label className="flex items-center space-x-2">
+            <Checkbox 
+              data-testid="handgun-filter-checkbox"
+              checked={filters.handgun === true} 
+              onCheckedChange={(checked) => handleFilterChange('handgun', checked ? true : null)}
+              className="tactical-checkbox"
+            />
+            <span className="text-sm font-medium dark:text-slate-300">Handgun</span>
+          </label>
+          <label className="flex items-center space-x-2">
+            <Checkbox 
+              data-testid="rifle-filter-checkbox"
+              checked={filters.rifle === true} 
+              onCheckedChange={(checked) => handleFilterChange('rifle', checked ? true : null)}
+              className="tactical-checkbox"
+            />
+            <span className="text-sm font-medium dark:text-slate-300">Rifle</span>
+          </label>
+          <label className="flex items-center space-x-2">
+            <Checkbox 
+              data-testid="shotgun-filter-checkbox"
+              checked={filters.shotgun === true} 
+              onCheckedChange={(checked) => handleFilterChange('shotgun', checked ? true : null)}
+              className="tactical-checkbox"
+            />
+            <span className="text-sm font-medium dark:text-slate-300">Shotgun</span>
+          </label>
+          <label className="flex items-center space-x-2">
+            <Checkbox 
+              data-testid="archery-filter-checkbox"
+              checked={filters.archery === true} 
+              onCheckedChange={(checked) => handleFilterChange('archery', checked ? true : null)}
+              className="tactical-checkbox"
+            />
+            <span className="text-sm font-medium dark:text-slate-300">Archery</span>
+          </label>
+        </div>
+      </div>
+
+      <div>
+        <h3 data-testid="services-filter-header" className="tactical-heading text-sm mb-3 dark:text-slate-200">Services</h3>
+        <div className="space-y-2">
+          <label className="flex items-center space-x-2">
+            <Checkbox 
+              data-testid="instruction-filter-checkbox"
+              checked={filters.instruction === true} 
+              onCheckedChange={(checked) => handleFilterChange('instruction', checked ? true : null)}
+              className="tactical-checkbox"
+            />
+            <span className="text-sm font-medium dark:text-slate-300">Instruction</span>
+          </label>
+          <label className="flex items-center space-x-2">
+            <Checkbox 
+              data-testid="rentals-filter-checkbox"
+              checked={filters.equipment_rentals === true} 
+              onCheckedChange={(checked) => handleFilterChange('equipment_rentals', checked ? true : null)}
+              className="tactical-checkbox"
+            />
+            <span className="text-sm font-medium dark:text-slate-300">Equipment Rentals</span>
+          </label>
+          <label className="flex items-center space-x-2">
+            <Checkbox 
+              data-testid="retail-filter-checkbox"
+              checked={filters.retail_store === true} 
+              onCheckedChange={(checked) => handleFilterChange('retail_store', checked ? true : null)}
+              className="tactical-checkbox"
+            />
+            <span className="text-sm font-medium dark:text-slate-300">Retail Store</span>
+          </label>
+          <label className="flex items-center space-x-2">
+            <Checkbox 
+              data-testid="youth-programs-filter-checkbox"
+              checked={filters.youth_programs === true} 
+              onCheckedChange={(checked) => handleFilterChange('youth_programs', checked ? true : null)}
+              className="tactical-checkbox"
+            />
+            <span className="text-sm font-medium dark:text-slate-300">Youth Programs</span>
+          </label>
+          <label className="flex items-center space-x-2">
+            <Checkbox 
+              data-testid="womens-programs-filter-checkbox"
+              checked={filters.womens_programs === true} 
+              onCheckedChange={(checked) => handleFilterChange('womens_programs', checked ? true : null)}
+              className="tactical-checkbox"
+            />
+            <span className="text-sm font-medium dark:text-slate-300">Women&apos;s Programs</span>
+          </label>
+        </div>
+      </div>
+
+      <div>
+        <h3 data-testid="competitions-filter-header" className="tactical-heading text-sm mb-3 dark:text-slate-200">Competitions</h3>
+        <div className="space-y-2">
+          <label className="flex items-center space-x-2">
+            <Checkbox 
+              data-testid="uspsa-filter-checkbox"
+              checked={filters.uspsa === true} 
+              onCheckedChange={(checked) => handleFilterChange('uspsa', checked ? true : null)}
+              className="tactical-checkbox"
+            />
+            <span className="text-sm font-medium dark:text-slate-300">USPSA</span>
+          </label>
+          <label className="flex items-center space-x-2">
+            <Checkbox 
+              data-testid="idpa-filter-checkbox"
+              checked={filters.idpa === true} 
+              onCheckedChange={(checked) => handleFilterChange('idpa', checked ? true : null)}
+              className="tactical-checkbox"
+            />
+            <span className="text-sm font-medium dark:text-slate-300">IDPA</span>
+          </label>
+          <label className="flex items-center space-x-2">
+            <Checkbox 
+              data-testid="precision-pistol-filter-checkbox"
+              checked={filters.precision_pistol === true} 
+              onCheckedChange={(checked) => handleFilterChange('precision_pistol', checked ? true : null)}
+              className="tactical-checkbox"
+            />
+            <span className="text-sm font-medium dark:text-slate-300">Precision Pistol</span>
+          </label>
+          <label className="flex items-center space-x-2">
+            <Checkbox 
+              data-testid="three-gun-filter-checkbox"
+              checked={filters.three_gun === true} 
+              onCheckedChange={(checked) => handleFilterChange('three_gun', checked ? true : null)}
+              className="tactical-checkbox"
+            />
+            <span className="text-sm font-medium dark:text-slate-300">3-Gun</span>
+          </label>
+        </div>
+      </div>
+
+      <div className="pt-4 border-t border-slate-200 dark:border-slate-600">
+        <Button 
+          data-testid="clear-filters-button"
+          variant="outline" 
+          onClick={clearFilters} 
+          className="w-full dark:border-slate-500 dark:text-slate-200 dark:hover:bg-slate-700"
+        >
+          Clear All Filters
+        </Button>
+      </div>
+    </div>
+  );
+
+  const RangeCard = ({ range }) => (
+    <Card data-testid={`range-card-${range.id}`} className="range-card mb-4 cursor-pointer dark:bg-slate-800 dark:border-slate-600" onClick={() => setSelectedRange(range)}>
+      <CardHeader className="pb-3">
+        <div className="flex justify-between items-start">
+          <div>
+            <CardTitle className="tactical-heading text-lg dark:text-slate-100">{range.name}</CardTitle>
+            <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
+              <MapPin className="inline w-4 h-4 mr-1" />
+              {range.location.address}, {range.location.city}, {range.location.state}
+            </p>
+            {range.distance && (
+              <p className="text-xs text-slate-500 dark:text-slate-400">{range.distance.toFixed(1)} miles away</p>
+            )}
+          </div>
+          {range.nssf_member && (
+            <Badge data-testid={`nssf-badge-${range.id}`} className="tactical-badge">NSSF</Badge>
+          )}
+        </div>
+      </CardHeader>
+      
+      <CardContent className="pt-0">
+        <div className="flex flex-wrap gap-1 mb-3">
+          {getAmenityBadges(range.amenities).map((badge, index) => (
+            <Badge key={index} data-testid={`amenity-badge-${range.id}-${index}`} variant="secondary" className="text-xs dark:bg-slate-700 dark:text-slate-200">
+              {badge}
+            </Badge>
+          ))}
+        </div>
+        
+        <div className="flex items-center gap-4 text-sm text-slate-600 dark:text-slate-300">
+          {range.phone && (
+            <div className="flex items-center">
+              <Phone className="w-4 h-4 mr-1" />
+              <span>{range.phone}</span>
+            </div>
+          )}
+          {range.website && (
+            <div className="flex items-center">
+              <Globe className="w-4 h-4 mr-1" />
+              <a 
+                data-testid={`website-link-${range.id}`}
+                href={range.website} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-blue-600 dark:text-blue-400 hover:underline"
+                onClick={(e) => e.stopPropagation()}
+              >
+                Website
+              </a>
+            </div>
+          )}
+        </div>
+        
+        <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-600">
+          <Link 
+            to={`/range/${range.id}`} 
+            data-testid={`view-details-link-${range.id}`}
+            className="text-sm font-medium text-orange-500 hover:underline"
+            onClick={(e) => e.stopPropagation()}
+          >
+            View Details →
+          </Link>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  return (
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 grid-pattern transition-colors duration-300">
+      {/* Header with Video - Full Width */}
+      <header className="relative text-white overflow-hidden w-screen -mx-4 sm:-mx-6 lg:-mx-8" style={{ minHeight: '400px' }}>
+        {/* YouTube Video Background */}
+        <div className="absolute inset-0 w-full h-full z-0">
+          <iframe
+            src="https://www.youtube.com/embed/JnempufjTdw?autoplay=1&mute=1&loop=1&playlist=JnempufjTdw&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1"
+            title="Shooting Range Video"
+            className="absolute top-0 left-0 w-full h-full"
+            style={{ 
+              width: '100%', 
+              height: '100%',
+              minHeight: '400px',
+              minWidth: '100%',
+              border: 'none'
+            }}
+            allow="autoplay; encrypted-media"
+            allowFullScreen
+            frameBorder="0"
+            loading="lazy"
+          />
+          {/* Dark overlay for text readability */}
+          <div className="absolute inset-0 bg-slate-900 bg-opacity-60 z-10"></div>
+        </div>
+        
+        {/* Content overlay */}
+        <div className="relative z-20 container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="text-center">
+            {/* Theme Toggle & User Menu - Top Right */}
+            <div className="absolute top-4 right-4 flex items-center gap-3">
+              <ThemeToggle />
+              <UserMenu />
+            </div>
+            
+            <h1 data-testid="main-heading" className="text-4xl md:text-6xl font-black tactical-heading mb-4">
+              DMV GUN RANGE
+            </h1>
+            <p data-testid="main-subtitle" className="text-lg md:text-xl mb-8 text-slate-200">
+              Find Shooting Ranges in DC, Maryland & Virginia
+            </p>
+            
+            {stats && (
+              <div className="flex justify-center gap-8 text-sm">
+                <div data-testid="total-ranges-stat" className="text-center">
+                  <div className="text-2xl font-bold text-orange-500">{stats.total_ranges}</div>
+                  <div className="text-slate-300">Total Ranges</div>
+                </div>
+                <div data-testid="va-ranges-stat" className="text-center">
+                  <div className="text-2xl font-bold text-orange-500">{stats.virginia_ranges}</div>
+                  <div className="text-slate-300">Virginia</div>
+                </div>
+                <div data-testid="md-ranges-stat" className="text-center">
+                  <div className="text-2xl font-bold text-orange-500">{stats.maryland_ranges}</div>
+                  <div className="text-slate-300">Maryland</div>
+                </div>
+                <div data-testid="dc-ranges-stat" className="text-center">
+                  <div className="text-2xl font-bold text-orange-500">{stats.dc_ranges}</div>
+                  <div className="text-slate-300">DC</div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </header>
+
+      {/* Search Section */}
+      <section className="bg-white dark:bg-slate-800 border-b-2 border-slate-200 dark:border-slate-700 py-6 transition-colors duration-300">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row gap-4 items-center">
+            <div className="flex-1 flex gap-2">
+              <Input
+                data-testid="search-input"
+                placeholder="Enter city or ZIP code"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="tactical-input flex-1"
+                onKeyDown={(e) => e.key === 'Enter' && searchRanges()}
+              />
+              <Select value={radius} onValueChange={setRadius}>
+                <SelectTrigger data-testid="radius-selector" className="w-32 dark:bg-slate-700 dark:border-slate-600">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="dark:bg-slate-800 dark:border-slate-600">
+                  <SelectItem value="5">5 miles</SelectItem>
+                  <SelectItem value="10">10 miles</SelectItem>
+                  <SelectItem value="20">20 miles</SelectItem>
+                  <SelectItem value="40">40 miles</SelectItem>
+                  <SelectItem value="80">80 miles</SelectItem>
+                  <SelectItem value="160">160 miles</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="flex gap-2">
+              <Button 
+                data-testid="search-button"
+                onClick={() => searchRanges()} 
+                className="tactical-button"
+                disabled={loading}
+              >
+                <Search className="w-4 h-4 mr-2" />
+                {loading ? "Searching..." : "Search"}
+              </Button>
+              
+              <Button 
+                data-testid="use-location-button"
+                onClick={getCurrentLocation} 
+                variant="outline" 
+                className="interactive-element"
+                disabled={loading}
+              >
+                <Navigation className="w-4 h-4 mr-2" />
+                Use My Location
+              </Button>
+              
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button data-testid="filter-button" variant="outline" className="interactive-element">
+                    <Filter className="w-4 h-4 mr-2" />
+                    Filters
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-80">
+                  <SheetHeader>
+                    <SheetTitle className="tactical-heading">Filter Ranges</SheetTitle>
+                  </SheetHeader>
+                  <div className="mt-6">
+                    <FilterPanel />
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Results Section */}
+      <section className="flex-1 py-6">
+        <div className="container mx-auto px-4 h-full">
+          <div className="flex gap-6 h-full">
+            {/* Desktop Filter Panel */}
+            <div className="hidden lg:block w-80 filter-panel p-6 h-fit sticky top-6 dark:bg-slate-800 dark:border-slate-600">
+              <h2 data-testid="desktop-filter-header" className="tactical-heading text-lg mb-6 dark:text-slate-100">Filter Ranges</h2>
+              <FilterPanel />
+            </div>
+            
+            {/* Results */}
+            <div className="flex-1">
+              <div className="mb-4 flex justify-between items-center">
+                <h2 data-testid="results-header" className="tactical-heading text-xl dark:text-slate-100">
+                  {ranges.length > 0 ? `${ranges.length} Ranges Found` : 'No Ranges Found'}
+                </h2>
+                <div className="flex items-center gap-2">
+                  {userLocation && (
+                    <Badge data-testid="location-badge" variant="outline" className="text-xs dark:border-slate-500 dark:text-slate-300">
+                      <MapPin className="w-3 h-3 mr-1" />
+                      Using your location
+                    </Badge>
+                  )}
+                  
+                  {/* View Toggle */}
+                  <div className="flex border dark:border-slate-600 rounded-lg overflow-hidden">
+                    <button
+                      data-testid="list-view-btn"
+                      onClick={() => setViewMode("list")}
+                      className={`px-3 py-1.5 flex items-center gap-1 text-sm ${
+                        viewMode === "list" 
+                          ? "bg-orange-500 text-white" 
+                          : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600"
+                      }`}
+                    >
+                      <List className="w-4 h-4" />
+                      List
+                    </button>
+                    <button
+                      data-testid="map-view-btn"
+                      onClick={() => setViewMode("map")}
+                      className={`px-3 py-1.5 flex items-center gap-1 text-sm ${
+                        viewMode === "map" 
+                          ? "bg-orange-500 text-white" 
+                          : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600"
+                      }`}
+                    >
+                      <Map className="w-4 h-4" />
+                      Map
+                    </button>
+                  </div>
+                  
+                  {/* Submit Range Button */}
+                  <Button
+                    data-testid="submit-range-btn"
+                    onClick={() => navigate("/submit")}
+                    variant="outline"
+                    className="hidden sm:flex items-center gap-1"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Add Range
+                  </Button>
+                </div>
+              </div>
+              
+              {loading ? (
+                <div data-testid="loading-indicator" className="text-center py-12">
+                  <div className="inline-flex items-center gap-2 text-slate-600">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-orange-500"></div>
+                    Searching ranges...
+                  </div>
+                </div>
+              ) : viewMode === "map" ? (
+                <div data-testid="map-view-container">
+                  <RangeMap 
+                    ranges={ranges} 
+                    onRangeClick={(range) => navigate(`/range/${range.id}`)}
+                    height="500px"
+                  />
+                </div>
+              ) : (
+                <div data-testid="results-container" className="results-scroll space-y-4">
+                  {ranges.length > 0 ? (
+                    ranges.map((range) => (
+                      <RangeCard key={range.id} range={range} />
+                    ))
+                  ) : (
+                    <div data-testid="no-results-message" className="text-center py-12 text-slate-600">
+                      <MapPin className="w-12 h-12 mx-auto mb-4 text-slate-400" />
+                      <h3 className="text-lg font-semibold mb-2">No ranges found</h3>
+                      <p className="mb-4">Try adjusting your search criteria or expanding your radius.</p>
+                      <Button data-testid="show-all-button" onClick={loadInitialRanges} variant="outline">
+                        Show All Ranges
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+};
+
+export default HomePage;

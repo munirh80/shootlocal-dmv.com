@@ -1,0 +1,230 @@
+INFO:     Will watch for changes in these directories: ['/Users/munir/Downloads/shootlocal-dmv.com-main/backend']
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [4912] using StatReload
+INFO:     Started server process [4924]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:51106 - "GET /api/ranges HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51148 - "POST /api/auth/register HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51168 - "POST /api/auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51171 - "POST /api/auth/login HTTP/1.1" 401 Unauthorized
+INFO:     None:0 - "GET /api/ranges HTTP/1.1" 200 OK
+INFO:     None:0 - "GET /api/stats HTTP/1.1" 200 OK
+INFO:     None:0 - "GET /api/ranges?limit=50 HTTP/1.1" 200 OK
+INFO:     None:0 - "GET /api/ranges?limit=50 HTTP/1.1" 200 OK
+INFO:     None:0 - "GET /api/stats HTTP/1.1" 200 OK
+INFO:     None:0 - "GET /api/ranges?limit=50 HTTP/1.1" 200 OK
+INFO:     None:0 - "GET /api/ranges?limit=50 HTTP/1.1" 200 OK
+INFO:     None:0 - "GET /api/stats HTTP/1.1" 200 OK
+INFO:     None:0 - "GET /api/stats HTTP/1.1" 200 OK
+INFO:     None:0 - "GET /api/ranges?limit=50 HTTP/1.1" 200 OK
+INFO:     None:0 - "GET /api/ranges?limit=50 HTTP/1.1" 200 OK
+INFO:     None:0 - "GET /api/stats HTTP/1.1" 200 OK
+INFO:     None:0 - "GET /api/stats HTTP/1.1" 200 OK
+INFO:     None:0 - "GET /api/ranges?city=20 HTTP/1.1" 200 OK
+INFO:     None:0 - "GET /api/ranges?city=201 HTTP/1.1" 200 OK
+INFO:     None:0 - "GET /api/ranges?zip_code=20109 HTTP/1.1" 200 OK
+INFO:     None:0 - "GET /api/ranges?limit=50 HTTP/1.1" 200 OK
+INFO:     None:0 - "GET /api/ranges?limit=50 HTTP/1.1" 200 OK
+INFO:     None:0 - "GET /api/stats HTTP/1.1" 200 OK
+INFO:     None:0 - "GET /api/stats HTTP/1.1" 200 OK
+INFO:     None:0 - "POST /api/auth/register HTTP/1.1" 200 OK
+INFO:     None:0 - "GET /api/ranges?limit=50 HTTP/1.1" 200 OK
+INFO:     None:0 - "GET /main.d71a33e570c0ac6acaec.hot-update.json HTTP/1.1" 200 OK
+INFO:     None:0 - "POST /api/auth/register HTTP/1.1" 400 Bad Request
+INFO:     None:0 - "GET /api/ranges?limit=50 HTTP/1.1" 200 OK
+INFO:     None:0 - "GET /api/stats HTTP/1.1" 200 OK
+INFO:     None:0 - "GET /api/stats HTTP/1.1" 200 OK
+INFO:     None:0 - "POST /api/auth/register HTTP/1.1" 200 OK
+INFO:     None:0 - "POST /api/auth/login HTTP/1.1" 200 OK
+INFO:     None:0 - "GET /api/auth/me HTTP/1.1" 200 OK
+INFO:     None:0 - "GET /api/ranges?limit=50 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51838 - "POST /api/auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51842 - "DELETE /api/auth/account HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51844 - "POST /api/auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51846 - "DELETE /api/auth/account HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51848 - "POST /api/auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51852 - "DELETE /api/auth/account HTTP/1.1" 200 OK
+INFO:     None:0 - "GET /api/ranges?limit=50 HTTP/1.1" 200 OK
+INFO:     None:0 - "GET /api/ranges?limit=50 HTTP/1.1" 200 OK
+INFO:     None:0 - "GET /api/ranges?limit=50 HTTP/1.1" 200 OK
+INFO:     None:0 - "GET /api/stats HTTP/1.1" 200 OK
+INFO:     None:0 - "GET /api/stats HTTP/1.1" 200 OK
+INFO:     None:0 - "GET /api/ranges?outdoor=true HTTP/1.1" 200 OK
+INFO:     None:0 - "GET /api/ranges HTTP/1.1" 200 OK
+WARNING:  StatReload detected changes in 'server.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [4924]
+INFO:     Started server process [7213]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  StatReload detected changes in 'tests/test_user_auth.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [7213]
+INFO:     Started server process [7279]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     85.11.167.191:0 - "POST / HTTP/1.1" 405 Method Not Allowed
+INFO:     127.0.0.1:59913 - "GET /api HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59915 - "GET /api/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59924 - "GET /api/ranges HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59926 - "GET /api/states HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59928 - "GET /api/ranges?state=VA HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59930 - "GET /api/ranges?state=MD HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59932 - "GET /api/ranges?city=Chantilly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59934 - "GET /api/ranges?zip_code=20151 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59936 - "GET /api/ranges?indoor=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59938 - "GET /api/ranges?outdoor=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59940 - "GET /api/ranges?handgun=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59942 - "GET /api/ranges?rifle=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59944 - "GET /api/ranges?instruction=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59946 - "GET /api/ranges?uspsa=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59948 - "GET /api/ranges?latitude=38.8874&longitude=-77.4246&radius=20 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59950 - "GET /api/ranges HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59952 - "GET /api/ranges/78dae270-a313-49c0-bc04-0bfae0e7af87 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59954 - "GET /api/ranges/nonexistent-id HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:60105 - "GET /api/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60105 - "GET /api/ranges HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60105 - "GET /api/ranges HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60105 - "GET /api/ranges/78dae270-a313-49c0-bc04-0bfae0e7af87 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60105 - "GET /api/auth/me HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:60135 - "GET /api/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60135 - "GET /api/ranges HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60135 - "GET /api/ranges HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60135 - "GET /api/ranges/78dae270-a313-49c0-bc04-0bfae0e7af87 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60135 - "GET /api/states HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60135 - "GET /api/ranges?state=VA HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60135 - "GET /api/ranges?state=MD HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60135 - "GET /api/auth/me HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:60170 - "GET /api/states HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60175 - "GET /api/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60175 - "GET /api/ranges HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60175 - "GET /api/ranges HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60175 - "GET /api/ranges/78dae270-a313-49c0-bc04-0bfae0e7af87 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60175 - "GET /api/states HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60175 - "GET /api/ranges?state=VA HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60175 - "GET /api/ranges?state=MD HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60175 - "GET /api/auth/me HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:61405 - "GET /api/ranges?state=VA HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61407 - "GET /api/ranges?state=MD HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61409 - "GET /api/ranges?city=Chantilly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61411 - "GET /api/ranges?zip_code=20151 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61413 - "GET /api/ranges?indoor=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61415 - "GET /api/ranges?outdoor=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61417 - "GET /api/ranges?handgun=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61419 - "GET /api/ranges?rifle=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61422 - "GET /api/ranges?instruction=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61424 - "GET /api/ranges?q=Silver HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61426 - "GET /api/ranges?latitude=38.8462&longitude=-77.3064&radius=25 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61428 - "POST /api/ranges/submit HTTP/1.1" 422 Unprocessable Content
+2026-09-05 23:19:12,907 - server - WARNING - Resend API key not configured, skipping email
+INFO:     127.0.0.1:61430 - "POST /api/ranges/submit HTTP/1.1" 200 OK
+2026-09-05 23:19:12,975 - server - WARNING - Resend API key not configured, skipping email
+INFO:     127.0.0.1:61432 - "POST /api/ranges/submit HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61434 - "POST /api/admin/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61436 - "GET /api/admin/submissions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61438 - "POST /api/admin/submissions/0f4585d0-de49-44e3-a2ed-f8c3fc9ed91d/approve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61440 - "GET /api/ranges/0f4585d0-de49-44e3-a2ed-f8c3fc9ed91d HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61442 - "POST /api/admin/submissions/7eedd639-bd72-4991-8c26-6ec967b19d57/reject HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61444 - "GET /api/ranges/7eedd639-bd72-4991-8c26-6ec967b19d57 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:61550 - "GET /api/ranges?state=VA HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61552 - "GET /api/ranges?state=MD HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61555 - "GET /api/ranges?city=Chantilly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61557 - "GET /api/ranges?zip_code=20151 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61559 - "GET /api/ranges?indoor=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61561 - "GET /api/ranges?outdoor=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61563 - "GET /api/ranges?handgun=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61565 - "GET /api/ranges?rifle=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61567 - "GET /api/ranges?instruction=true HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61570 - "GET /api/ranges?q=Silver HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61572 - "GET /api/ranges?latitude=38.8462&longitude=-77.3064&radius=25 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61574 - "POST /api/ranges/submit HTTP/1.1" 422 Unprocessable Content
+2026-09-05 23:19:43,810 - server - WARNING - Resend API key not configured, skipping email
+INFO:     127.0.0.1:61576 - "POST /api/ranges/submit HTTP/1.1" 200 OK
+2026-09-05 23:19:43,861 - server - WARNING - Resend API key not configured, skipping email
+INFO:     127.0.0.1:61578 - "POST /api/ranges/submit HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61580 - "POST /api/admin/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61582 - "GET /api/admin/submissions HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61584 - "POST /api/admin/submissions/344cdf88-64e1-4a96-9ecd-e1917e5a0e00/approve HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61587 - "GET /api/ranges/344cdf88-64e1-4a96-9ecd-e1917e5a0e00 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61589 - "POST /api/admin/submissions/ff2c337d-43d0-41dd-b769-f0fea22fe558/reject HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61591 - "GET /api/ranges/ff2c337d-43d0-41dd-b769-f0fea22fe558 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:61765 - "GET / HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61767 - "GET /static/css/main.5bd2430e.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61765 - "GET /static/js/main.4c0fa090.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61765 - "GET /static/js/556.d75832d0.chunk.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61767 - "GET /static/js/141.37aea9b2.chunk.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61772 - "GET /static/js/100.43a18e0e.chunk.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61773 - "GET /static/js/672.6a77243c.chunk.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61765 - "GET /static/css/857.14c80b48.chunk.css HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61767 - "GET /static/js/857.ea2343fd.chunk.js HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61765 - "GET /undefined/api/stats HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61767 - "GET /undefined/api/ranges?limit=50 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62010 - "POST /api/auth/register HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62018 - "POST /api/auth/login HTTP/1.1" 200 OK
+WARNING:  StatReload detected changes in 'server.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [7279]
+INFO:     Started server process [42042]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:62293 - "POST /api/auth/google HTTP/1.1" 400 Bad Request
+2026-09-05 23:27:51,415 - httpx - INFO - HTTP Request: GET https://oauth2.googleapis.com/tokeninfo?id_token=invalid_test_token_123 "HTTP/1.1 400 Bad Request"
+INFO:     127.0.0.1:62295 - "POST /api/auth/google HTTP/1.1" 401 Unauthorized
+WARNING:  StatReload detected changes in 'server.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [42042]
+Process SpawnProcess-5:
+Traceback (most recent call last):
+  File "/usr/local/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/multiprocessing/process.py", line 320, in _bootstrap
+    self.run()
+    ~~~~~~~~^^
+  File "/usr/local/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/munir/Downloads/shootlocal-dmv.com-main/backend/venv/lib/python3.14/site-packages/uvicorn/_subprocess.py", line 76, in subprocess_started
+    target(sockets=sockets)
+    ~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/munir/Downloads/shootlocal-dmv.com-main/backend/venv/lib/python3.14/site-packages/uvicorn/server.py", line 61, in run
+    return asyncio.run(self.serve(sockets=sockets))
+           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py", line 205, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/usr/local/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py", line 128, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/usr/local/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py", line 720, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/Users/munir/Downloads/shootlocal-dmv.com-main/backend/venv/lib/python3.14/site-packages/uvicorn/server.py", line 68, in serve
+    config.load()
+    ~~~~~~~~~~~^^
+  File "/Users/munir/Downloads/shootlocal-dmv.com-main/backend/venv/lib/python3.14/site-packages/uvicorn/config.py", line 467, in load
+    self.loaded_app = import_from_string(self.app)
+                      ~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/Users/munir/Downloads/shootlocal-dmv.com-main/backend/venv/lib/python3.14/site-packages/uvicorn/importer.py", line 21, in import_from_string
+    module = importlib.import_module(module_str)
+  File "/usr/local/Cellar/python@3.14/3.14.7/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py", line 88, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen importlib._bootstrap>", line 1406, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1371, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1342, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 938, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 759, in exec_module
+  File "<frozen importlib._bootstrap>", line 491, in _call_with_frames_removed
+  File "/Users/munir/Downloads/shootlocal-dmv.com-main/backend/server.py", line 1478, in <module>
+    app.mount("/static", StaticFiles(directory=str(FRONTEND_BUILD / "static")), name="frontend-static")
+                         ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/munir/Downloads/shootlocal-dmv.com-main/backend/venv/lib/python3.14/site-packages/starlette/staticfiles.py", line 59, in __init__
+    raise RuntimeError(f"Directory '{directory}' does not exist")
+RuntimeError: Directory '/Users/munir/Downloads/shootlocal-dmv.com-main/frontend/build/static' does not exist

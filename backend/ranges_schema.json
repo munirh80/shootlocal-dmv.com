@@ -1,0 +1,114 @@
+{
+  "$jsonSchema": {
+    "bsonType": "object",
+    "title": "range",
+    "required": ["id", "name", "location", "amenities", "created_at", "updated_at"],
+    "properties": {
+      "id": {
+        "bsonType": "string",
+        "description": "UUID string, required. Also used as external/public identifier separate from Mongo's _id."
+      },
+      "name": { "bsonType": "string", "description": "Range/business name, required." },
+      "description": { "bsonType": ["string", "null"] },
+      "phone": { "bsonType": ["string", "null"] },
+      "website": { "bsonType": ["string", "null"] },
+      "email": { "bsonType": ["string", "null"] },
+      "location": {
+        "bsonType": "object",
+        "required": ["address", "city", "state", "zip_code"],
+        "properties": {
+          "address": { "bsonType": "string" },
+          "city": { "bsonType": "string" },
+          "state": { "bsonType": "string", "enum": ["VA", "MD", "DC"] },
+          "zip_code": { "bsonType": "string" },
+          "latitude": { "bsonType": ["double", "null"] },
+          "longitude": { "bsonType": ["double", "null"] },
+          "geo": {
+            "bsonType": ["object", "null"],
+            "description": "GeoJSON Point, kept in sync with latitude/longitude. Required for $near/$geoNear proximity queries.",
+            "required": ["type", "coordinates"],
+            "properties": {
+              "type": { "bsonType": "string", "enum": ["Point"] },
+              "coordinates": {
+                "bsonType": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": { "bsonType": "double" },
+                "description": "[longitude, latitude] order, per GeoJSON spec"
+              }
+            }
+          }
+        }
+      },
+      "hours": {
+        "bsonType": ["object", "null"],
+        "properties": {
+          "monday": { "bsonType": "string" },
+          "tuesday": { "bsonType": "string" },
+          "wednesday": { "bsonType": "string" },
+          "thursday": { "bsonType": "string" },
+          "friday": { "bsonType": "string" },
+          "saturday": { "bsonType": "string" },
+          "sunday": { "bsonType": "string" }
+        }
+      },
+      "amenities": {
+        "bsonType": "object",
+        "description": "All fields boolean, mirrors transform_range() defaults.",
+        "required": [
+          "indoor", "outdoor", "pistol_50ft", "pistol_75ft", "pistol_25yd", "pistol_50yd",
+          "rifle_smallbore", "rifle_centerfire", "rifle_100yd", "rifle_200yd", "rifle_300yd", "rifle_500yd",
+          "handgun", "rifle", "shotgun", "archery", "airgun", "muzzle_loader",
+          "equipment_rentals", "instruction", "retail_store", "hunter_education",
+          "youth_programs", "womens_programs", "food_service", "clubhouse", "picnic_area",
+          "rv_sites", "lodging", "precision_pistol", "practical_pistol",
+          "smallbore_competition", "centerfire_competition", "airgun_competition",
+          "rimfire_challenge", "three_gun", "cowboy_action", "uspsa", "idpa",
+          "trap", "skeet", "sporting_clays", "five_stand", "ada_accessible",
+          "climate_controlled", "bulletproof_barriers", "public_access", "members_only",
+          "concealed_carry_classes", "basic_firearm_training", "advanced_training"
+        ],
+        "properties": {
+          "indoor": { "bsonType": "bool" }, "outdoor": { "bsonType": "bool" },
+          "pistol_50ft": { "bsonType": "bool" }, "pistol_75ft": { "bsonType": "bool" },
+          "pistol_25yd": { "bsonType": "bool" }, "pistol_50yd": { "bsonType": "bool" },
+          "rifle_smallbore": { "bsonType": "bool" }, "rifle_centerfire": { "bsonType": "bool" },
+          "rifle_100yd": { "bsonType": "bool" }, "rifle_200yd": { "bsonType": "bool" },
+          "rifle_300yd": { "bsonType": "bool" }, "rifle_500yd": { "bsonType": "bool" },
+          "handgun": { "bsonType": "bool" }, "rifle": { "bsonType": "bool" },
+          "shotgun": { "bsonType": "bool" }, "archery": { "bsonType": "bool" },
+          "airgun": { "bsonType": "bool" }, "muzzle_loader": { "bsonType": "bool" },
+          "equipment_rentals": { "bsonType": "bool" }, "instruction": { "bsonType": "bool" },
+          "retail_store": { "bsonType": "bool" }, "hunter_education": { "bsonType": "bool" },
+          "youth_programs": { "bsonType": "bool" }, "womens_programs": { "bsonType": "bool" },
+          "food_service": { "bsonType": "bool" }, "clubhouse": { "bsonType": "bool" },
+          "picnic_area": { "bsonType": "bool" }, "rv_sites": { "bsonType": "bool" },
+          "lodging": { "bsonType": "bool" }, "precision_pistol": { "bsonType": "bool" },
+          "practical_pistol": { "bsonType": "bool" }, "smallbore_competition": { "bsonType": "bool" },
+          "centerfire_competition": { "bsonType": "bool" }, "airgun_competition": { "bsonType": "bool" },
+          "rimfire_challenge": { "bsonType": "bool" }, "three_gun": { "bsonType": "bool" },
+          "cowboy_action": { "bsonType": "bool" }, "uspsa": { "bsonType": "bool" },
+          "idpa": { "bsonType": "bool" }, "trap": { "bsonType": "bool" },
+          "skeet": { "bsonType": "bool" }, "sporting_clays": { "bsonType": "bool" },
+          "five_stand": { "bsonType": "bool" }, "ada_accessible": { "bsonType": "bool" },
+          "climate_controlled": { "bsonType": "bool" }, "bulletproof_barriers": { "bsonType": "bool" },
+          "public_access": { "bsonType": "bool" }, "members_only": { "bsonType": "bool" },
+          "concealed_carry_classes": { "bsonType": "bool" }, "basic_firearm_training": { "bsonType": "bool" },
+          "advanced_training": { "bsonType": "bool" }
+        }
+      },
+      "pricing": { "bsonType": ["object", "null"] },
+      "photos": {
+        "bsonType": "array",
+        "items": { "bsonType": "string" }
+      },
+      "google_rating": { "bsonType": ["double", "null"] },
+      "google_reviews": { "bsonType": ["int", "long", "null"] },
+      "google_maps_url": { "bsonType": ["string", "null"] },
+      "nssf_member": { "bsonType": "bool" },
+      "verified": { "bsonType": "bool" },
+      "created_at": { "bsonType": ["string", "date"] },
+      "updated_at": { "bsonType": ["string", "date"] }
+    }
+  }
+}
